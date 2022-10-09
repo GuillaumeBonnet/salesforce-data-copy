@@ -10,10 +10,42 @@
 
 const { configure } = require('quasar/wrappers');
 const path = require('path');
-const { QToolbarTitle } = require('quasar');
-
 module.exports = configure(function (/* ctx */) {
   return {
+    // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
+    framework: {
+      config: {
+        dark: true,
+      },
+      iconSet: 'material-icons  ',
+      autoImportComponentCase: 'pascal',
+      // iconSet: 'material-icons', // Quasar icon set
+      // lang: 'en-US', // Quasar language pack
+
+      // For special cases outside of where the auto-import strategy can have an impact
+      // (like functional components as one of the examples),
+      // you can manually specify Quasar components/directives to be available everywhere:
+      //
+      components: [
+        'QBtn',
+        'QPage',
+        'QHeader',
+        'QToolbar',
+        'QToolbarTitle',
+        'QPageContainer',
+        'QLayout',
+        'QStep',
+        'QStepper',
+        'QStepperNavigation',
+        'QBanner',
+        'QSelect',
+        'QIcon',
+      ],
+      // directives: [],
+
+      // Quasar plugins
+      plugins: [],
+    },
     eslint: {
       // fix: true,
       // include = [],
@@ -29,7 +61,7 @@ module.exports = configure(function (/* ctx */) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['i18n', 'axios', ''],
+    boot: ['i18n', 'axios'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ['app.scss'],
@@ -37,7 +69,7 @@ module.exports = configure(function (/* ctx */) {
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
-      // 'mdi-v5',
+      // 'mdi-v6',
       // 'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
@@ -93,37 +125,6 @@ module.exports = configure(function (/* ctx */) {
       // https: true
       open: true, // opens browser window automatically
     },
-
-    // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
-    framework: {
-      config: {
-        brand: {
-          primary: 'hotpink',
-        },
-      },
-      autoImportComponentCase: 'pascal',
-      // iconSet: 'material-icons', // Quasar icon set
-      // lang: 'en-US', // Quasar language pack
-
-      // For special cases outside of where the auto-import strategy can have an impact
-      // (like functional components as one of the examples),
-      // you can manually specify Quasar components/directives to be available everywhere:
-      //
-      components: [
-        'QBtn',
-        'QPage',
-        'QHeader',
-        'QToolbar',
-        'QToolbarTitle',
-        'QPageContainer',
-        'QLayout',
-      ],
-      // directives: [],
-
-      // Quasar plugins
-      plugins: [],
-    },
-
     // animations: 'all', // --- includes all animations
     // https://v2.quasar.dev/options/animations
     animations: [],

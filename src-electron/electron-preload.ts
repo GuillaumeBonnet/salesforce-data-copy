@@ -15,3 +15,12 @@
  *     doAThing: () => {}
  *   })
  */
+
+import { contextBridge, ipcRenderer } from 'electron';
+import { ipcApi } from './channels';
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  getAliases: () => {
+    return ipcRenderer.invoke(ipcApi.sfdx.getAliases);
+  },
+});
