@@ -40,6 +40,7 @@ module.exports = configure(function (/* ctx */) {
         'QBanner',
         'QSelect',
         'QIcon',
+        'QInput',
       ],
       // directives: [],
 

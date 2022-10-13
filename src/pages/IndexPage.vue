@@ -8,7 +8,9 @@
         :done="step > 1"
         style="min-height: 200px"
       >
-        <initialization-step></initialization-step>
+        <initialization-step
+          @is-next-step-disabled="(value) => (nextNavDisabled = value)"
+        ></initialization-step>
       </q-step>
 
       <q-step
@@ -51,6 +53,7 @@
             @click="$refs.stepper.next()"
             color="primary"
             :label="step === 4 ? 'Finish' : 'Continue'"
+            :disable="nextNavDisabled"
           />
           <q-btn
             v-if="step > 1"
@@ -84,6 +87,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import InitializationStep from './InitializationStep.vue';
-
 const step = ref(1);
+const nextNavDisabled = ref(true);
 </script>

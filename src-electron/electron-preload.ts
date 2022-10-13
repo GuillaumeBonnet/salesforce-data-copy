@@ -17,10 +17,27 @@
  */
 
 import { contextBridge, ipcRenderer } from 'electron';
-import { ipcApi } from './channels';
-
-contextBridge.exposeInMainWorld('electronAPI', {
-  getAliases: () => {
-    return ipcRenderer.invoke(ipcApi.sfdx.getAliases);
+import { ElectronApi_PreloadKeyChecker } from './electron-main';
+/**
+ * @description to be updated manually. will show errors when electronApi is changed
+ *  in the main script. Odd work around because importing the electronApi const doesn't
+ *  work so we're importing a type instead
+ */
+const electronApiKeys: ElectronApi_PreloadKeyChecker = {
+  sfdx: {
+    getAliases: '',
+    testConnections: '',
   },
-});
+};
+
+const electronApiExposed = JSON.parse(JSON.stringify(electronApiKeys));
+
+for (const domainKey in electronApiKeys) {
+  const typedKey = domainKey as keyof typeof electronApiKeys;
+  for (const key in electronApiKeys[typedKey]) {
+    electronApiExposed[domainKey][key] = (...args: any[]) => {
+      return ipcRenderer.invoke(`${domainKey}.${key}`, ...args);
+    };
+  }
+}
+contextBridge.exposeInMainWorld('electronApi', electronApiExposed);

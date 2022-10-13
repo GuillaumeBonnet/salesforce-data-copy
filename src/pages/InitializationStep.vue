@@ -1,42 +1,4 @@
 <template>
-  <!-- <div class="flex w-12/12 mx-auto items-center justify-center gap-2">
-    <q-select
-      class="w-4/12"
-      outlined
-      v-model="fromSandbox.ref"
-      :options="fromSandbox.options"
-      label="From sandbox"
-      :dropdown-icon="
-        fromSandbox.successfulConnection ? 'cloud_done' : 'cloud_off'
-      "
-    />
-    <q-icon
-      name="double_arrow"
-      size="3em"
-      :color="bothSandboxPicked ? 'white' : 'grey'"
-    />
-    <q-select
-      class="w-4/12"
-      outlined
-      v-model="toSandbox.ref"
-      :options="toSandbox.options"
-      label="To sandbox"
-      :disable="toSandbox.disabled"
-      :dropdown-icon="
-        toSandbox.successfulConnection ? 'cloud_done' : 'cloud_off'
-      "
-    />
-  </div>
-  <div class="">
-    <q-btn
-      :disable="!bothSandboxPicked"
-      class="mx-auto my-8 block"
-      color="secondary"
-      icon-right="cloud"
-      label="Test connections"
-    />
-  </div> -->
-
   <div class="flex w-12/12 mx-auto items-center justify-center gap-2">
     <select-organization
       label="From sandbox"
@@ -61,20 +23,54 @@
   <div class="">
     <q-btn
       label="Test connections"
-      @click="onclick"
+      @click="testConnections()"
       :disable="!bothSandboxPicked"
       class="mx-auto my-8 block"
       color="secondary"
       icon-right="cloud"
     />
   </div>
+  <div class="flex justify-center items-center gap-2 wrap">
+    <div class="underline w-full text-lg">Initial query:</div>
+    <q-input
+      class=""
+      ref="inputSObject"
+      outlined
+      v-model="queryBits.sOjectName"
+      label="SObject Name"
+      :rules="[(val) => !!val || 'Field is required']"
+    />
+    <span class="">WHERE</span>
+    <q-input
+      class=""
+      ref="inputWhere"
+      outlined
+      v-model="queryBits.whereClause"
+      label="Type filter"
+      :rules="[
+        (val) => !!val || 'Field is required',
+        (val) =>
+          (val && !val.toUpperCase().startsWith('WHERE')) ||
+          `Don't add WHERE in the filter.`,
+      ]"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { $ } from 'app/dist/electron/UnPackaged/assets/index.cbc5386a';
+import { QInput } from 'quasar';
 import { computed, onMounted, reactive, watch } from 'vue';
 import { ref } from 'vue';
 import SelectOrganization from './SelectOrganization.vue';
+
+onMounted(async () => {
+  fromSandbox.options = await window.electronApi.sfdx.getAliases();
+});
+
+const emit = defineEmits<{
+  (e: 'isNextStepDisabled', value: boolean): void;
+}>();
 
 const fromSandbox = reactive({
   selection: '',
@@ -97,21 +93,60 @@ watch(
   (value, oldValue) => {
     toSandbox.selection = '';
     toSandbox.options = fromSandbox.options.filter((option) => option != value);
+    fromSandbox.errorMsg = '';
+    fromSandbox.successfulConnection = false;
+  }
+);
+
+watch(
+  () => toSandbox.selection,
+  (value, oldValue) => {
+    toSandbox.errorMsg = '';
+    toSandbox.successfulConnection = false;
   }
 );
 
 const bothSandboxPicked = computed(() => {
   return fromSandbox.selection && toSandbox.selection;
 });
-const onclick = () => {
-  setTimeout(() => {
-    fromSandbox.successfulConnection = !fromSandbox.successfulConnection;
-    toSandbox.errorMsg += '- AAA- ';
-  }, 1000);
+
+const testConnections = async () => {
+  const result = await window.electronApi.sfdx.testConnections({
+    fromUsername: fromSandbox.selection,
+    toUsername: toSandbox.selection,
+  });
+  fromSandbox.errorMsg = result.fromSandbox.errorMsg;
+  fromSandbox.successfulConnection = result.fromSandbox.successfulConnection;
+
+  toSandbox.errorMsg = result.toSandbox.errorMsg;
+  toSandbox.successfulConnection = result.toSandbox.successfulConnection;
 };
-onMounted(async () => {
-  fromSandbox.options = await electronAPI.getAliases();
+
+const inputSObject = ref<QInput>();
+const inputWhere = ref<QInput>();
+const queryBits = reactive({
+  sOjectName: '',
+  whereClause: '',
 });
+
+watch(
+  () => {
+    return (
+      !fromSandbox.successfulConnection ||
+      !toSandbox.successfulConnection ||
+      !queryBits.sOjectName ||
+      !queryBits.whereClause ||
+      !inputSObject.value ||
+      inputSObject.value.hasError ||
+      !inputWhere.value ||
+      inputWhere.value.hasError
+    );
+  },
+  (val) => {
+    emit('isNextStepDisabled', val);
+  }
+);
+
 // AccountRef1      Account            0011x00001fVmNUAA0
 // AccountRef2      Account            0011x00001fVmNVAA0
 // AccountRef3      Account            0011x00001fVmNWAA0

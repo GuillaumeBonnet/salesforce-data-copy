@@ -50,16 +50,70 @@ function createWindow() {
 }
 
 import { AuthInfo, Connection } from '@salesforce/core';
-import { ipcApi } from './channels';
+// import { ipcApi } from './channels';
 import { startOrgConnexion } from './sfdxUtils';
 import { Schema } from 'jsforce';
+import { electron } from 'process';
+let connectionSourceOrg: Connection<Schema>;
+let connectionTargetOrg: Connection<Schema>;
+
+const electronApi = {
+  sfdx: {
+    getAliases: async function getSfdxAuthAliases() {
+      //TODO alias instead of username
+      return (await AuthInfo.listAllAuthorizations()).map(
+        (auth) => auth.username
+      );
+    },
+    testConnections: async function testConnections(userNames: {
+      fromUsername: string;
+      toUsername: string;
+    }) {
+      const output = {
+        fromSandbox: {
+          errorMsg: '',
+          successfulConnection: false,
+        },
+        toSandbox: {
+          errorMsg: '',
+          successfulConnection: false,
+        },
+      };
+      try {
+        connectionSourceOrg = await startOrgConnexion(userNames.fromUsername);
+      } catch (error) {
+        output.fromSandbox.errorMsg = errorMsg(error);
+      }
+      output.fromSandbox.successfulConnection = true;
+      try {
+        connectionTargetOrg = await startOrgConnexion(userNames.toUsername);
+      } catch (error) {
+        output.toSandbox.errorMsg = errorMsg(error);
+      }
+      output.toSandbox.successfulConnection = true;
+      return output;
+    },
+  },
+};
+
+type ElectronApi = typeof electronApi;
+
+type ElectronApi_PreloadKeyChecker = {
+  [key in keyof ElectronApi]: {
+    [key2 in keyof ElectronApi[key]]: '';
+  };
+};
+
 app.whenReady().then(() => {
   createWindow();
-
-  ipcMain.handle(ipcApi.sfdx.getAliases, getSfdxAuthAliases);
-  ipcMain.handle(ipcApi.sfdx.testConnections, (event, ...args) => {
-    testConnections(...args);
-  });
+  for (const domainKey in electronApi) {
+    const typedKey = domainKey as keyof typeof electronApi;
+    for (const key in electronApi[typedKey]) {
+      ipcMain.handle(`${domainKey}.${key}`, (event, ...args) => {
+        return (electronApi as any)[domainKey][key](...args);
+      });
+    }
+  }
 });
 
 app.on('window-all-closed', () => {
@@ -74,42 +128,5 @@ app.on('activate', () => {
   }
 });
 
-async function getSfdxAuthAliases() {
-  console.log('gboDebug: list', await AuthInfo.listAllAuthorizations());
-  //TODO alias instead of username
-  return (await AuthInfo.listAllAuthorizations()).map((auth) => auth.username);
-}
-
-let connectionSourceOrg: Connection<Schema>;
-let connectionTargetOrg: Connection<Schema>;
-
-async function testConnections(userNames: {
-  sourceOrg: string;
-  targetOrg: string;
-}) {
-  const output = {
-    sourceOrg: {
-      errorMsg: '',
-      successfulConnection: false,
-    },
-    targetOrg: {
-      errorMsg: '',
-      successfulConnection: false,
-    },
-  };
-  try {
-    connectionSourceOrg = await startOrgConnexion(userNames.sourceOrg);
-  } catch (error) {
-    output.sourceOrg.errorMsg = errorMsg(error);
-  }
-  output.sourceOrg.successfulConnection = true;
-  try {
-    connectionTargetOrg = await startOrgConnexion(userNames.targetOrg);
-  } catch (error) {
-    output.targetOrg.errorMsg = errorMsg(error);
-  }
-  output.targetOrg.successfulConnection = true;
-  return output;
-}
-
-export { ipcApi };
+export { electronApi };
+export type { ElectronApi, ElectronApi_PreloadKeyChecker };

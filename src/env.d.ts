@@ -1,5 +1,13 @@
 /* eslint-disable */
 
+import { ElectronApi } from 'app/src-electron/electron-main';
+
+declare global {
+  interface Window {
+    electronApi: ElectronApi;
+  }
+}
+
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: string;
