@@ -21,7 +21,7 @@
         :done="step > 2"
         style="min-height: 200px"
       >
-        <TreeSteps></TreeSteps>
+        <GraphSteps></GraphSteps>
       </q-step>
 
       <template v-slot:navigation>
@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import InitializationStep from 'src/components/InitializationStep.vue';
-import TreeSteps from 'src/components/TreeSteps.vue';
-const step = ref(1);
+import GraphSteps from 'src/components/GraphSteps.vue';
+const step = ref(2); //TODO
 const nextNavDisabled = ref(true);
 </script>

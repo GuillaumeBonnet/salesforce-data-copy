@@ -10,7 +10,7 @@
         <!-- //TODO ask node for the package.json version -->
       </q-toolbar>
     </q-header>
-    <q-page-container>
+    <q-page-container class="h-full">
       <router-view />
     </q-page-container>
   </q-layout>
