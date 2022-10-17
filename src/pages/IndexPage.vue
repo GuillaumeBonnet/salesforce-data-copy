@@ -9,6 +9,7 @@
         style="min-height: 200px"
       >
         <InitializationStep
+          ref="initializationStepCmp"
           @is-next-step-disabled="(value) => (nextNavDisabled = value)"
         ></InitializationStep>
       </q-step>
@@ -28,7 +29,7 @@
         <q-stepper-navigation>
           <q-btn
             v-if="step == 1"
-            @click="$refs.stepper.next()"
+            @click="goToGraphStep()"
             color="primary"
             label="Start data extraction"
             :disable="nextNavDisabled"
@@ -37,7 +38,7 @@
             v-if="step > 1"
             flat
             color="primary"
-            @click="$refs.stepper.previous()"
+            @click="stepper?.previous()"
             label="Back"
             class="q-ml-sm"
           />
@@ -61,6 +62,18 @@
 import { ref } from 'vue';
 import InitializationStep from 'src/components/InitializationStep.vue';
 import GraphSteps from 'src/components/GraphSteps.vue';
-const step = ref(2); //TODO
+import { QStepper } from 'quasar';
+const step = ref(1);
+const stepper = ref<InstanceType<typeof QStepper> | null>(null);
 const nextNavDisabled = ref(true);
+const initializationStepCmp = ref<InstanceType<
+  typeof InitializationStep
+> | null>(null);
+
+const goToGraphStep = async () => {
+  const hasInitCondChanged =
+    (await initializationStepCmp.value?.saveInitCondIfChanged())?.hasChanged ||
+    false;
+  stepper.value?.next();
+};
 </script>

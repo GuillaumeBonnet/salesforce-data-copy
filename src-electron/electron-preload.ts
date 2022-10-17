@@ -28,6 +28,10 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
     getAliases: '',
     testConnections: '',
   },
+  persistentStore: {
+    getInitialConditions: '',
+    setInitialConditions: '',
+  },
 };
 
 const electronApiExposed = JSON.parse(JSON.stringify(electronApiKeys));

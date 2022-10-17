@@ -54,6 +54,8 @@ import { AuthInfo, Connection } from '@salesforce/core';
 import { startOrgConnexion } from './sfdxUtils';
 import { Schema } from 'jsforce';
 import { electron } from 'process';
+import { PersistentStore, persistentStore } from './PersistentStore';
+
 let connectionSourceOrg: Connection<Schema>;
 let connectionTargetOrg: Connection<Schema>;
 
@@ -94,6 +96,23 @@ const electronApi = {
       return output;
     },
   },
+  persistentStore: {
+    getInitialConditions: async () => {
+      return persistentStore.get('initialConditions', {
+        fromUsername: '',
+        toUsername: '',
+        queryBits: {
+          sObjectName: '',
+          whereClause: '',
+        },
+      });
+    },
+    setInitialConditions: async (
+      initialConditions: PersistentStore['initialConditions']
+    ) => {
+      return persistentStore.set('initialConditions', initialConditions);
+    },
+  },
 };
 
 type ElectronApi = typeof electronApi;
@@ -109,6 +128,7 @@ app.whenReady().then(() => {
   for (const domainKey in electronApi) {
     const typedKey = domainKey as keyof typeof electronApi;
     for (const key in electronApi[typedKey]) {
+      //todo check good security practice page
       ipcMain.handle(`${domainKey}.${key}`, (event, ...args) => {
         return (electronApi as any)[domainKey][key](...args);
       });

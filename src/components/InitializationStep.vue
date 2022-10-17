@@ -4,10 +4,8 @@
       label="From sandbox"
       class="w-4/12"
       v-bind="fromSandbox"
-      v-model="fromSandbox.selection"
+      v-model="currentInitCond.fromUsername"
     ></select-organization>
-    <!-- :options="fromSandbox.options"
-      :successful-connection="fromSandbox.successfulConnection" -->
     <q-icon
       name="double_arrow"
       size="3em"
@@ -17,7 +15,7 @@
       label="To sandbox"
       class="w-4/12"
       v-bind="toSandbox"
-      v-model="toSandbox.selection"
+      v-model="currentInitCond.toUsername"
     ></select-organization>
   </div>
   <div class="">
@@ -36,7 +34,7 @@
       class=""
       ref="inputSObject"
       outlined
-      v-model="queryBits.sOjectName"
+      v-model="currentInitCond.queryBits.sObjectName"
       label="SObject Name"
       :rules="[(val) => !!val || 'Field is required']"
     />
@@ -45,7 +43,7 @@
       class=""
       ref="inputWhere"
       outlined
-      v-model="queryBits.whereClause"
+      v-model="currentInitCond.queryBits.whereClause"
       label="Type filter"
       :rules="[
         (val) => !!val || 'Field is required',
@@ -58,14 +56,41 @@
 </template>
 
 <script setup lang="ts">
-import { $ } from 'app/dist/electron/UnPackaged/assets/index.cbc5386a';
 import { QInput } from 'quasar';
-import { computed, onMounted, reactive, watch } from 'vue';
+import { computed, nextTick, onMounted, reactive, watch } from 'vue';
 import { ref } from 'vue';
 import SelectOrganization from './SelectOrganization.vue';
 
-onMounted(async () => {
+let previousInitCond: Awaited<
+  ReturnType<typeof window.electronApi.persistentStore.getInitialConditions>
+>;
+const currentInitCond: typeof previousInitCond = reactive({
+  fromUsername: '',
+  toUsername: '',
+  queryBits: {
+    sObjectName: '',
+    whereClause: '',
+  },
+});
+onMounted(async function () {
   fromSandbox.options = await window.electronApi.sfdx.getAliases();
+  previousInitCond =
+    await window.electronApi.persistentStore.getInitialConditions();
+  Object.assign(currentInitCond, previousInitCond); // reactive obj have to stay the same ref (use const)
+  if (
+    currentInitCond.fromUsername &&
+    !fromSandbox.options.includes(currentInitCond.fromUsername)
+  ) {
+    currentInitCond.fromUsername = '';
+  }
+  nextTick(() => {
+    if (
+      previousInitCond.toUsername &&
+      toSandbox.options.includes(previousInitCond.toUsername)
+    ) {
+      currentInitCond.toUsername = previousInitCond.toUsername; //had be removed when we assigned currentInitCond.toUsername
+    }
+  });
 });
 
 const emit = defineEmits<{
@@ -73,25 +98,23 @@ const emit = defineEmits<{
 }>();
 
 const fromSandbox = reactive({
-  selection: '',
   options: [] as string[],
   errorMsg: '',
   successfulConnection: false,
 });
 const toSandbox = reactive({
-  selection: '',
   options: [] as string[],
   errorMsg: '',
   successfulConnection: false,
   disable: computed(() => {
-    return !fromSandbox.selection;
+    return !currentInitCond.fromUsername;
   }),
 });
 
 watch(
-  () => fromSandbox.selection,
+  () => currentInitCond.fromUsername,
   (value, oldValue) => {
-    toSandbox.selection = '';
+    currentInitCond.toUsername = '';
     toSandbox.options = fromSandbox.options.filter((option) => option != value);
     fromSandbox.errorMsg = '';
     fromSandbox.successfulConnection = false;
@@ -99,7 +122,7 @@ watch(
 );
 
 watch(
-  () => toSandbox.selection,
+  () => currentInitCond.toUsername,
   (value, oldValue) => {
     toSandbox.errorMsg = '';
     toSandbox.successfulConnection = false;
@@ -107,13 +130,13 @@ watch(
 );
 
 const bothSandboxPicked = computed(() => {
-  return fromSandbox.selection && toSandbox.selection;
+  return currentInitCond.fromUsername && currentInitCond.toUsername;
 });
 
 const testConnections = async () => {
   const result = await window.electronApi.sfdx.testConnections({
-    fromUsername: fromSandbox.selection,
-    toUsername: toSandbox.selection,
+    fromUsername: currentInitCond.fromUsername,
+    toUsername: currentInitCond.toUsername,
   });
   fromSandbox.errorMsg = result.fromSandbox.errorMsg;
   fromSandbox.successfulConnection = result.fromSandbox.successfulConnection;
@@ -122,20 +145,16 @@ const testConnections = async () => {
   toSandbox.successfulConnection = result.toSandbox.successfulConnection;
 };
 
-const inputSObject = ref<QInput>();
+const inputSObject = ref<QInput>(); // to read the .hasError
 const inputWhere = ref<QInput>();
-const queryBits = reactive({
-  sOjectName: '',
-  whereClause: '',
-});
 
 watch(
   () => {
     return (
       !fromSandbox.successfulConnection ||
       !toSandbox.successfulConnection ||
-      !queryBits.sOjectName ||
-      !queryBits.whereClause ||
+      !currentInitCond.queryBits.sObjectName ||
+      !currentInitCond.queryBits.whereClause ||
       !inputSObject.value ||
       inputSObject.value.hasError ||
       !inputWhere.value ||
@@ -146,6 +165,27 @@ watch(
     emit('isNextStepDisabled', val);
   }
 );
+
+const saveInitCondIfChanged = async () => {
+  const output = { hasChanged: false };
+  if (
+    currentInitCond.fromUsername != previousInitCond.fromUsername ||
+    currentInitCond.toUsername != previousInitCond.toUsername ||
+    currentInitCond.queryBits.sObjectName !=
+      previousInitCond.queryBits.sObjectName ||
+    currentInitCond.queryBits.whereClause !=
+      previousInitCond.queryBits.whereClause
+  ) {
+    await window.electronApi.persistentStore.setInitialConditions(
+      JSON.parse(JSON.stringify(currentInitCond)) // extract from proxy
+    );
+    output.hasChanged = true;
+  }
+  return output;
+};
+defineExpose({
+  saveInitCondIfChanged,
+});
 
 // AccountRef1      Account            0011x00001fVmNUAA0
 // AccountRef2      Account            0011x00001fVmNVAA0

@@ -62,9 +62,4 @@ onMounted(() => {
     },
   });
 });
-console.log(
-  "gboDebug:[document.getElementById('graph')]",
-  document.getElementById('graph')
-);
-console.log("gboDebug:[ref('graph')]", ref('graph'));
 </script>
