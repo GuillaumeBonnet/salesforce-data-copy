@@ -64,7 +64,7 @@ import SelectOrganization from './SelectOrganization.vue';
 let previousInitCond: Awaited<
   ReturnType<typeof window.electronApi.persistentStore.getInitialConditions>
 >;
-const currentInitCond: typeof previousInitCond = reactive({
+let currentInitCond: typeof previousInitCond = reactive({
   fromUsername: '',
   toUsername: '',
   queryBits: {
@@ -74,9 +74,11 @@ const currentInitCond: typeof previousInitCond = reactive({
 });
 onMounted(async function () {
   fromSandbox.options = await window.electronApi.sfdx.getAliases();
-  previousInitCond =
-    await window.electronApi.persistentStore.getInitialConditions();
-  Object.assign(currentInitCond, previousInitCond); // reactive obj have to stay the same ref (use const)
+  Object.assign(
+    currentInitCond,
+    await window.electronApi.persistentStore.getInitialConditions()
+  ); // reactive obj have to stay the same ref (use const)
+  previousInitCond = JSON.parse(JSON.stringify(currentInitCond));
   if (
     currentInitCond.fromUsername &&
     !fromSandbox.options.includes(currentInitCond.fromUsername)
@@ -166,8 +168,11 @@ watch(
   }
 );
 
-const saveInitCondIfChanged = async () => {
-  const output = { hasChanged: false };
+const getInitCond = async () => {
+  const initCond: typeof currentInitCond & { hasChanged: boolean } = JSON.parse(
+    JSON.stringify(currentInitCond)
+  );
+  initCond.hasChanged = false;
   if (
     currentInitCond.fromUsername != previousInitCond.fromUsername ||
     currentInitCond.toUsername != previousInitCond.toUsername ||
@@ -177,14 +182,14 @@ const saveInitCondIfChanged = async () => {
       previousInitCond.queryBits.whereClause
   ) {
     await window.electronApi.persistentStore.setInitialConditions(
-      JSON.parse(JSON.stringify(currentInitCond)) // extract from proxy
+      initCond // extract from proxy
     );
-    output.hasChanged = true;
+    initCond.hasChanged = true;
   }
-  return output;
+  return initCond;
 };
 defineExpose({
-  saveInitCondIfChanged,
+  getInitCond,
 });
 
 // AccountRef1      Account            0011x00001fVmNUAA0

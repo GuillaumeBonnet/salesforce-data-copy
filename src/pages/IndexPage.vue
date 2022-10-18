@@ -69,11 +69,15 @@ const nextNavDisabled = ref(true);
 const initializationStepCmp = ref<InstanceType<
   typeof InitializationStep
 > | null>(null);
+let initCond: Awaited<
+  ReturnType<typeof initializationStepCmp.value.getInitCond>
+>;
 
 const goToGraphStep = async () => {
-  const hasInitCondChanged =
-    (await initializationStepCmp.value?.saveInitCondIfChanged())?.hasChanged ||
-    false;
+  if (initializationStepCmp.value) {
+    initCond = await initializationStepCmp.value.getInitCond();
+  }
+  console.log('gboDebug:[initCond]', initCond);
   stepper.value?.next();
 };
 </script>
