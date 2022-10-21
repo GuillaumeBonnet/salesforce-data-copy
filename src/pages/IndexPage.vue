@@ -22,7 +22,10 @@
         :done="step > 2"
         style="min-height: 200px"
       >
-        <GraphSteps></GraphSteps>
+        <GraphSteps
+          v-if="initRecords.length"
+          :init-records="initRecords"
+        ></GraphSteps>
       </q-step>
 
       <template v-slot:navigation>
@@ -61,23 +64,34 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import InitializationStep from 'src/components/InitializationStep.vue';
-import GraphSteps from 'src/components/GraphSteps.vue';
-import { QStepper } from 'quasar';
+import GraphSteps from 'src/components/GraphSteps/GraphSteps.vue';
+import { QStepper, useQuasar } from 'quasar';
+import { Record } from 'jsforce';
+import { notifyError } from 'src/components/vueUtils';
 const step = ref(1);
 const stepper = ref<InstanceType<typeof QStepper> | null>(null);
 const nextNavDisabled = ref(true);
 const initializationStepCmp = ref<InstanceType<
   typeof InitializationStep
 > | null>(null);
-let initCond: Awaited<
-  ReturnType<typeof initializationStepCmp.value.getInitCond>
->;
+const initRecords: Record[] = [];
+const $q = useQuasar();
 
 const goToGraphStep = async () => {
   if (initializationStepCmp.value) {
-    initCond = await initializationStepCmp.value.getInitCond();
+    const initCond = await initializationStepCmp.value.getInitCond();
+    initRecords.push(
+      ...(await window.electronApi.sfdx.queryWithAllCreatableFields(
+        'FROM',
+        initCond.queryBits.sObjectName,
+        initCond.queryBits.whereClause
+      ))
+    );
+    if (initRecords.length == 0) {
+      notifyError($q, 'No initial records found.\nChange the initial query.');
+    } else {
+      stepper.value?.next();
+    }
   }
-  console.log('gboDebug:[initCond]', initCond);
-  stepper.value?.next();
 };
 </script>

@@ -41,11 +41,12 @@ module.exports = configure(function (/* ctx */) {
         'QSelect',
         'QIcon',
         'QInput',
+        'QDialog',
       ],
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ['Notify'],
     },
     eslint: {
       // fix: true,

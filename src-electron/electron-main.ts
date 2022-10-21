@@ -51,13 +51,13 @@ function createWindow() {
 
 import { AuthInfo, Connection } from '@salesforce/core';
 // import { ipcApi } from './channels';
-import { startOrgConnexion } from './sfdxUtils';
+import { queryWithAllCreatableFields, startOrgConnexion } from './sfdxUtils';
 import { Schema } from 'jsforce';
 import { electron } from 'process';
 import { PersistentStore, persistentStore } from './PersistentStore';
 
-let connectionSourceOrg: Connection<Schema>;
-let connectionTargetOrg: Connection<Schema>;
+let connectionFromOrg: Connection<Schema>;
+let connectionToOrg: Connection<Schema>;
 
 const electronApi = {
   sfdx: {
@@ -82,18 +82,27 @@ const electronApi = {
         },
       };
       try {
-        connectionSourceOrg = await startOrgConnexion(userNames.fromUsername);
+        connectionFromOrg = await startOrgConnexion(userNames.fromUsername);
       } catch (error) {
         output.fromSandbox.errorMsg = errorMsg(error);
       }
       output.fromSandbox.successfulConnection = true;
       try {
-        connectionTargetOrg = await startOrgConnexion(userNames.toUsername);
+        connectionToOrg = await startOrgConnexion(userNames.toUsername);
       } catch (error) {
         output.toSandbox.errorMsg = errorMsg(error);
       }
       output.toSandbox.successfulConnection = true;
       return output;
+    },
+    queryWithAllCreatableFields: async function (
+      sandbox: 'FROM' | 'TO',
+      sObjectName: string,
+      whereClause?: string
+    ) {
+      const connection: Connection =
+        sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
+      return queryWithAllCreatableFields(connection, sObjectName, whereClause);
     },
   },
   persistentStore: {

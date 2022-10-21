@@ -3,8 +3,8 @@ import { SobjectData } from 'src/models/types';
 import { Log } from './Log';
 
 const findAllCreatableFields = async (
-  sObjectName: string,
-  connection: Connection
+  connection: Connection,
+  sObjectName: string
 ) => {
   const describeResult = await connection.describe(sObjectName);
   return describeResult.fields
@@ -33,11 +33,11 @@ const startOrgConnexion = async (username: string) => {
 };
 
 const queryWithAllCreatableFields = async (
-  sObjectName: string,
   connection: Connection,
+  sObjectName: string,
   whereClause?: string
 ) => {
-  const creatableFields = await findAllCreatableFields(sObjectName, connection);
+  const creatableFields = await findAllCreatableFields(connection, sObjectName);
   if (!whereClause) {
     whereClause = '';
   }
@@ -45,17 +45,11 @@ const queryWithAllCreatableFields = async (
     creatableFields.unshift('IsPersonType');
   }
   creatableFields.unshift('Id');
-  const querryString = `SELECT ${creatableFields.join(
+  const queryString = `SELECT ${creatableFields.join(
     ', '
-  )} FROM ${sObjectName} ${whereClause}`;
-  Log.stepInGreen(
-    'query',
-    `SELECT fields... FROM ${sObjectName} ${whereClause}`
-  );
+  )} FROM ${sObjectName} WHERE ${whereClause}`;
 
-  return (await connection.query(querryString)).records.map(
-    (elem) => elem as SobjectData
-  );
+  return (await connection.query(queryString)).records; //TODO check about sanitizing user inputs, mb in the generic function that bridges all the electronApi
 };
 
 const lookupsMetadataOfSobject = async (

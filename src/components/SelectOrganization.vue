@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import { $ } from 'app/dist/electron/UnPackaged/assets/index.cbc5386a';
 import { computed, onMounted, reactive, watch } from 'vue';
 import { ref } from 'vue';
 

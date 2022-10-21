@@ -27,6 +27,7 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
   sfdx: {
     getAliases: '',
     testConnections: '',
+    queryWithAllCreatableFields: '',
   },
   persistentStore: {
     getInitialConditions: '',
