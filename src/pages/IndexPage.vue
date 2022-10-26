@@ -68,18 +68,36 @@ import GraphSteps from 'src/components/GraphSteps/GraphSteps.vue';
 import { QStepper, useQuasar } from 'quasar';
 import { Record } from 'jsforce';
 import { notifyError } from 'src/components/vueUtils';
+import { SfRecord } from 'src/models/types';
 const step = ref(1);
 const stepper = ref<InstanceType<typeof QStepper> | null>(null);
 const nextNavDisabled = ref(true);
 const initializationStepCmp = ref<InstanceType<
   typeof InitializationStep
 > | null>(null);
-const initRecords: Record[] = [];
+const initRecords: SfRecord[] = [];
 const $q = useQuasar();
 
 const goToGraphStep = async () => {
   if (initializationStepCmp.value) {
     const initCond = await initializationStepCmp.value.getInitCond();
+
+    await window.electronApi.sfdx.queryWithAllCreatableFields(
+      'FROM',
+      initCond.queryBits.sObjectName,
+      initCond.queryBits.whereClause
+    );
+
+    initRecords.push(
+      (
+        await window.electronApi.sfdx.queryWithAllCreatableFields(
+          'FROM',
+          initCond.queryBits.sObjectName,
+          initCond.queryBits.whereClause
+        )
+      )[0]
+    );
+
     initRecords.push(
       ...(await window.electronApi.sfdx.queryWithAllCreatableFields(
         'FROM',

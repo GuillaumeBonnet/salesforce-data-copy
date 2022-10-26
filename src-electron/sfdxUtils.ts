@@ -1,6 +1,7 @@
 import { AuthInfo, Connection } from '@salesforce/core';
-import { SobjectData } from 'src/models/types';
-import { Log } from './Log';
+import { Record } from 'jsforce';
+import { Log } from 'src/components/GraphSteps/Log';
+import { SfRecord } from 'src/models/types';
 
 const findAllCreatableFields = async (
   connection: Connection,
@@ -49,8 +50,27 @@ const queryWithAllCreatableFields = async (
     ', '
   )} FROM ${sObjectName} WHERE ${whereClause}`;
 
-  return (await connection.query(queryString)).records; //TODO check about sanitizing user inputs, mb in the generic function that bridges all the electronApi
+  Log.stepInGreen(
+    'query',
+    `SELECT fields... FROM ${sObjectName} ${whereClause}`
+  );
+  const recordsData = (await connection.query(queryString)).records; //TODO check about sanitizing user inputs, mb in the generic function that bridges all the electronApi
+  if (!isSfRecords(recordsData)) {
+    throw Error(
+      'one of the recordData should have an Id and an attributes property'
+    );
+  }
+  return recordsData;
 };
+
+function isSfRecords(records: Record[]): records is SfRecord[] {
+  return !records.some((record) => {
+    return !isSfRecord(record);
+  });
+}
+function isSfRecord(record: Record): record is SfRecord {
+  return !!record.Id && !!record.attributes;
+}
 
 const lookupsMetadataOfSobject = async (
   sObjectName: string,
@@ -109,7 +129,7 @@ const findUserInSandboxOrg = async (
   ) {
     throw Error(`User ${userName} => ${userNameProd} not found in target Org.`);
   } else {
-    return queryResult_RecordAlreadyExists.records[0] as SobjectData;
+    return queryResult_RecordAlreadyExists.records[0];
   }
 };
 
@@ -121,3 +141,5 @@ export {
   findCreatableUniqueField as findUniqueField,
   findUserInSandboxOrg,
 };
+
+export type { SfRecord };

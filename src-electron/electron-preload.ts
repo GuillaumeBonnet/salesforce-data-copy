@@ -28,6 +28,7 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
     getAliases: '',
     testConnections: '',
     queryWithAllCreatableFields: '',
+    lookupsMetadataOfSobject: '',
   },
   persistentStore: {
     getInitialConditions: '',

@@ -1,4 +1,4 @@
-import { GraphNode } from "./GraphNode";
+import { GraphNode } from './GraphTypes';
 
 interface DataGraph {
   [Id: string]: GraphNode;

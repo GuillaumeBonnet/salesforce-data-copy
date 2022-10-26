@@ -1,7 +1,18 @@
 <template>
   tee steps
-  <div class="bg-red-600" v-if="errorMsg">{{ errorMsg }}</div>
-  <div id="graph" ref="graph" class="h-96 border border-black bg-white"></div>
+  <div class="relative">
+    <div
+      id="graph"
+      ref="graph"
+      class="h-96 border-4 border-black bg-gray-100"
+    ></div>
+    <q-btn
+      class="absolute top-4 right-4"
+      color="secondary"
+      label="Reset nodes positions"
+      @click="resetNodePosition()"
+    />
+  </div>
 </template>
 
 <style></style>
@@ -16,85 +27,35 @@ import cytoscape, {
 } from 'cytoscape';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
-import { Record } from 'jsforce';
 import { GraphBuilder } from './GraphBuilder';
 import { notifyError } from '../vueUtils';
+import { NodeData } from 'src/models/GraphTypes';
+import { SfRecord } from 'src/models/types';
+import { getEmptyGraph } from './InitCytoscapeInstance';
 
-const props = defineProps<{ initRecords: Record[] }>();
-const errorMsg = ref('');
+const props = defineProps<{ initRecords: SfRecord[] }>();
 const $q = useQuasar();
+const cy = getEmptyGraph();
 
 onMounted(() => {
-  const cy = cytoscape({
-    container: document.getElementById('graph'), // container to render in
-
-    elements: [
-      // list of graph elements to start with
-      {
-        // node a
-        data: { id: 'a' },
-      },
-      {
-        // node b
-        data: { id: 'b' },
-      },
-      {
-        // edge ab
-        data: { id: 'ab', source: 'a', target: 'b' },
-      },
-    ],
-
-    style: [
-      // the stylesheet for the graph
-      {
-        selector: 'node',
-        style: {
-          'background-color': '#666',
-          label: 'data(id)',
-        },
-      },
-
-      {
-        selector: 'edge',
-        style: {
-          width: 3,
-          'line-color': '#ccc',
-          'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'triangle',
-          'curve-style': 'bezier',
-        },
-      },
-    ],
-
-    layout: {
-      name: 'grid',
-      rows: 1,
-    },
-  });
+  const graphNode = document.getElementById('graph');
+  if (!graphNode) {
+    throw Error('Node for graph not found.');
+  }
+  cy.mount(graphNode);
   nextTick(async () => {
     try {
-      await new GraphBuilder().build(props.initRecords);
+      await new GraphBuilder().build(props.initRecords, cy);
+      resetNodePosition();
     } catch (error) {
       notifyError($q, errorMsgExtractor(error));
     }
   });
-  setTimeout(() => {
-    cy.add([
-      {
-        group: 'nodes',
-        data: {
-          id: 'c',
-        },
-      },
-      {
-        group: 'edges',
-        data: {
-          id: 'c' + '-edge',
-          source: 'a',
-          target: 'c',
-        },
-      },
-    ]);
-  }, 1000);
 });
+
+const resetNodePosition = () => {
+  cy.layout({
+    name: 'dagre',
+  }).run();
+};
 </script>

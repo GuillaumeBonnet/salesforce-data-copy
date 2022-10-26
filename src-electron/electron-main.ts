@@ -2,7 +2,6 @@ import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import path from 'path';
 import os from 'os';
 import { errorMsg } from './utils';
-
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
 
@@ -51,9 +50,12 @@ function createWindow() {
 
 import { AuthInfo, Connection } from '@salesforce/core';
 // import { ipcApi } from './channels';
-import { queryWithAllCreatableFields, startOrgConnexion } from './sfdxUtils';
+import {
+  lookupsMetadataOfSobject,
+  queryWithAllCreatableFields,
+  startOrgConnexion,
+} from './sfdxUtils';
 import { Schema } from 'jsforce';
-import { electron } from 'process';
 import { PersistentStore, persistentStore } from './PersistentStore';
 
 let connectionFromOrg: Connection<Schema>;
@@ -103,6 +105,14 @@ const electronApi = {
       const connection: Connection =
         sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
       return queryWithAllCreatableFields(connection, sObjectName, whereClause);
+    },
+    lookupsMetadataOfSobject: async function (
+      sandbox: 'FROM' | 'TO',
+      sObjectName: string
+    ) {
+      const connection: Connection =
+        sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
+      return lookupsMetadataOfSobject(sObjectName, connection);
     },
   },
   persistentStore: {
