@@ -10,33 +10,40 @@
       >
         <InitializationStep
           ref="initializationStepCmp"
-          @is-next-step-disabled="(value) => (nextNavDisabled = value)"
+          @is-next-step-disabled="
+            (value) => (graphBuildingStepDisabled = value)
+          "
         ></InitializationStep>
       </q-step>
 
       <q-step
         :name="2"
-        title="Extract and copy records"
-        caption="Caption"
+        title="Extract records"
+        caption="sandbox from"
         icon="create_new_folder"
         :done="step > 2"
         style="min-height: 200px"
       >
-        <GraphSteps
+        <GraphFetchData
           v-if="initRecords.length"
           :init-records="initRecords"
-        ></GraphSteps>
+          @allow-next-step="upsertStepDisabled = false"
+        ></GraphFetchData>
+      </q-step>
+
+      <q-step
+        :name="3"
+        title="Upsert records"
+        caption="sandbox to"
+        icon="create_new_folder"
+        :done="step > 3"
+        style="min-height: 200px"
+      >
+        <GraphUpsertion></GraphUpsertion>
       </q-step>
 
       <template v-slot:navigation>
-        <q-stepper-navigation>
-          <q-btn
-            v-if="step == 1"
-            @click="goToGraphStep()"
-            color="primary"
-            label="Start data extraction"
-            :disable="nextNavDisabled"
-          />
+        <q-stepper-navigation class="flex">
           <q-btn
             v-if="step > 1"
             flat
@@ -44,6 +51,21 @@
             @click="stepper?.previous()"
             label="Back"
             class="q-ml-sm"
+          />
+          <div class="flex-grow"></div>
+          <q-btn
+            v-if="step == 1"
+            @click="goToGraphBuildingStep()"
+            color="primary"
+            label="Start data extraction"
+            :disable="graphBuildingStepDisabled"
+          />
+          <q-btn
+            v-if="step == 2"
+            @click="goToUpsertStep()"
+            color="primary"
+            label="Start upserting data"
+            :disable="upsertStepDisabled"
           />
         </q-stepper-navigation>
       </template>
@@ -54,7 +76,10 @@
           cloned records
         </q-banner>
         <q-banner v-else-if="step === 2" class="bg-orange-8 text-white q-px-lg">
-          The ad group helps you to...
+          Fetching records from sandbox "from", it can take a while
+        </q-banner>
+        <q-banner v-else-if="step === 3" class="bg-orange-8 text-white q-px-lg">
+          Inserting or updating records to sandbox "to", it can take a while
         </q-banner>
       </template>
     </q-stepper>
@@ -64,21 +89,23 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import InitializationStep from 'src/components/InitializationStep.vue';
-import GraphSteps from 'src/components/GraphSteps/GraphSteps.vue';
+import GraphFetchData from 'src/components/GraphSteps/GraphFetchData.vue';
 import { QStepper, useQuasar } from 'quasar';
 import { Record } from 'jsforce';
 import { notifyError } from 'src/components/vueUtils';
 import { SfRecord } from 'src/models/types';
+import GraphUpsertion from 'src/components/GraphSteps/GraphUpsertion.vue';
 const step = ref(1);
 const stepper = ref<InstanceType<typeof QStepper> | null>(null);
-const nextNavDisabled = ref(true);
+const graphBuildingStepDisabled = ref(true);
+const upsertStepDisabled = ref(true);
 const initializationStepCmp = ref<InstanceType<
   typeof InitializationStep
 > | null>(null);
 const initRecords: SfRecord[] = [];
 const $q = useQuasar();
 
-const goToGraphStep = async () => {
+const goToGraphBuildingStep = async () => {
   if (initializationStepCmp.value) {
     const initCond = await initializationStepCmp.value.getInitCond();
 
@@ -111,5 +138,9 @@ const goToGraphStep = async () => {
       stepper.value?.next();
     }
   }
+};
+
+const goToUpsertStep = async () => {
+  stepper.value?.next();
 };
 </script>

@@ -131,6 +131,17 @@ const electronApi = {
     ) => {
       return persistentStore.set('initialConditions', initialConditions);
     },
+    getGraphBeforeUpsertion: async () => {
+      return persistentStore.get('graphElementsBeforeUpsert', []);
+    },
+    setGraphBeforeUpsertion: async (
+      graphElementsBeforeUpsert: PersistentStore['graphElementsBeforeUpsert']
+    ) => {
+      return persistentStore.set(
+        'graphElementsBeforeUpsert',
+        graphElementsBeforeUpsert
+      );
+    },
   },
 };
 

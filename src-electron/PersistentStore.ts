@@ -1,4 +1,6 @@
+import { ElementDefinition } from 'cytoscape';
 import ElectronStore from 'electron-store';
+import { NodeData } from 'src/models/GraphTypes';
 
 interface PersistentStore {
   initialConditions: {
@@ -9,6 +11,7 @@ interface PersistentStore {
     fromUsername: string;
     toUsername: string;
   };
+  graphElementsBeforeUpsert: Array<ElementDefinition<NodeData>>; //array of elements as json
 }
 const persistentStore = new ElectronStore<PersistentStore>({
   schema: {
@@ -36,6 +39,67 @@ const persistentStore = new ElectronStore<PersistentStore>({
           type: 'string',
           format: 'email',
         },
+      },
+    },
+    graphElementsBeforeUpsert: {
+      $schema: 'http://json-schema.org/draft-04/schema#',
+      type: 'array',
+      contains: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
+              nodeData: {
+                type: 'object',
+              },
+              label: {
+                type: 'string',
+              },
+            },
+            required: ['id', 'nodeData', 'label'],
+          },
+          position: {
+            type: 'object',
+            properties: {
+              x: {
+                type: 'integer',
+              },
+              y: {
+                type: 'integer',
+              },
+            },
+            required: ['x', 'y'],
+          },
+          group: {
+            type: 'string',
+          },
+          removed: {
+            type: 'boolean',
+          },
+          selected: {
+            type: 'boolean',
+          },
+          selectable: {
+            type: 'boolean',
+          },
+          locked: {
+            type: 'boolean',
+          },
+          grabbable: {
+            type: 'boolean',
+          },
+          pannable: {
+            type: 'boolean',
+          },
+          classes: {
+            type: 'string',
+          },
+        },
+        required: ['data', 'position', 'group', 'removed', 'classes'],
       },
     },
   },

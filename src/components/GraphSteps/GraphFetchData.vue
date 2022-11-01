@@ -7,12 +7,16 @@
   >
     <q-drawer
       v-model="panel.isOpened"
-      behavior="default"
+      behavior="desktop"
       overlay
       bordered
       class="bg-gray-600"
       :width="600"
       :mini-width="300"
+      @hide="
+        resetNodeAnimation(panel.selectedNode);
+        panel.selectedNode = undefined;
+      "
     >
       <q-scroll-area class="h-full">
         <GraphPanelContent
@@ -46,12 +50,6 @@
 </style>
 <script lang="ts" setup>
 import { nextTick, onMounted, reactive, ref } from 'vue';
-import cytoscape, {
-  CollectionReturnValue,
-  Core,
-  ElementDefinition,
-  NodeSingular,
-} from 'cytoscape';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
 import { GraphBuilder } from './GraphBuilder';
@@ -60,9 +58,12 @@ import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { SfRecord } from 'src/models/types';
 import { getEmptyGraph, nodeStatesClasses } from './InitCytoscapeInstance';
 import GraphPanelContent from './GraphPanelContent.vue';
-import { Duration } from '@salesforce/kit';
 
 const props = defineProps<{ initRecords: SfRecord[] }>();
+const emit = defineEmits<{
+  (e: 'allowNextStep'): void;
+}>();
+
 const $q = useQuasar();
 const graph = getEmptyGraph();
 const panel = reactive<{ isOpened: boolean; selectedNode?: NodeDataClass }>({
@@ -80,24 +81,16 @@ onMounted(() => {
     // target holds a reference to the originator
     // of the event (core or element)
     const evtTarget = event.target;
-    const resetNodeAnimation = () => {
-      if (panel.selectedNode) {
-        const cyNode = graph.$id(panel.selectedNode.sourceId);
-        cyNode.stop();
-        cyNode.style('width', 30);
-        cyNode.style('height', 30);
-      }
-    };
     if (evtTarget === graph) {
       panel.isOpened = false;
-      resetNodeAnimation();
+      resetNodeAnimation(panel.selectedNode);
       panel.selectedNode = undefined;
     } else if (evtTarget) {
       if (!isCytoNode(evtTarget)) {
         return;
       }
       panel.isOpened = true;
-      resetNodeAnimation();
+      resetNodeAnimation(panel.selectedNode);
       panel.selectedNode = evtTarget.data().nodeData;
       const pulseIfSelected = () => {
         panel.selectedNode;
@@ -134,6 +127,15 @@ onMounted(() => {
     try {
       await new GraphBuilder().build(props.initRecords, graph);
       resetNodePosition();
+      console.log(
+        'gboDebug:[graph.elements().jsons()]',
+        graph.elements().jsons()
+      );
+      console.log('gboDebug:[graph.elements()]', graph.elements());
+      await window.electronApi.persistentStore.setGraphBeforeUpsertion(
+        graph.elements().jsons() as any
+      );
+      emit('allowNextStep');
     } catch (error) {
       notifyError($q, errorMsgExtractor(error));
     }
@@ -146,5 +148,13 @@ const resetNodePosition = () => {
       name: 'dagre',
     })
     .run();
+};
+const resetNodeAnimation = (node?: NodeDataClass) => {
+  if (node) {
+    const cyNode = graph.$id(node.sourceId);
+    cyNode.stop();
+    cyNode.style('width', 30);
+    cyNode.style('height', 30);
+  }
 };
 </script>

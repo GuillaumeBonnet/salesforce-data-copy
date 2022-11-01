@@ -33,6 +33,8 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
   persistentStore: {
     getInitialConditions: '',
     setInitialConditions: '',
+    getGraphBeforeUpsertion: '',
+    setGraphBeforeUpsertion: '',
   },
 };
 

@@ -1,4 +1,5 @@
 <template>
+  <div class="underline w-full text-lg">Chose sandboxes:</div>
   <div class="flex w-12/12 mx-auto items-center justify-center gap-2">
     <select-organization
       label="From sandbox"
@@ -29,7 +30,7 @@
     />
   </div>
   <div class="flex justify-center items-center gap-2 wrap">
-    <div class="underline w-full text-lg">Initial query:</div>
+    <div class="underline w-full text-lg">Chose initial query:</div>
     <q-input
       class=""
       ref="inputSObject"
@@ -191,28 +192,4 @@ const getInitCond = async () => {
 defineExpose({
   getInitCond,
 });
-
-// AccountRef1      Account            0011x00001fVmNUAA0
-// AccountRef2      Account            0011x00001fVmNVAA0
-// AccountRef3      Account            0011x00001fVmNWAA0
-// DynamoRef        Product_Family__c  a021x000004thJEAAY
-// FuseRef          Product_Family__c  a021x000004thJFAAY
-// ElectraRef       Product_Family__c  a021x000004thJGAAY
-// VoltRef          Product_Family__c  a021x000004thJHAAY
-// Product__cRef1   Product__c         a031x000008RYLgAAO
-// Product__cRef2   Product__c         a031x000008RYLhAAO
-// Product__cRef3   Product__c         a031x000008RYLiAAO
-// Product__cRef4   Product__c         a031x000008RYLjAAO
-// Product__cRef5   Product__c         a031x000008RYLkAAO
-// Product__cRef6   Product__c         a031x000008RYLlAAO
-// Product__cRef7   Product__c         a031x000008RYLmAAO
-// Product__cRef8   Product__c         a031x000008RYLnAAO
-// Product__cRef9   Product__c         a031x000008RYLoAAO
-// Product__cRef10  Product__c         a031x000008RYLpAAO
-// Product__cRef11  Product__c         a031x000008RYLqAAO
-// Product__cRef12  Product__c         a031x000008RYLrAAO
-// Product__cRef13  Product__c         a031x000008RYLsAAO
-// Product__cRef14  Product__c         a031x000008RYLtAAO
-// Product__cRef15  Product__c         a031x000008RYLuAAO
-// Product__cRef16  Product__c         a031x000008RYLvAAO
 </script>
