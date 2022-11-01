@@ -44,9 +44,6 @@
   overflow: hidden;
 }
 </style>
-
-<style></style>
-
 <script lang="ts" setup>
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import cytoscape, {
@@ -61,12 +58,13 @@ import { GraphBuilder } from './GraphBuilder';
 import { notifyError } from '../vueUtils';
 import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { SfRecord } from 'src/models/types';
-import { getEmptyGraph } from './InitCytoscapeInstance';
+import { getEmptyGraph, nodeStatesClasses } from './InitCytoscapeInstance';
 import GraphPanelContent from './GraphPanelContent.vue';
+import { Duration } from '@salesforce/kit';
 
 const props = defineProps<{ initRecords: SfRecord[] }>();
 const $q = useQuasar();
-const cy = getEmptyGraph();
+const graph = getEmptyGraph();
 const panel = reactive<{ isOpened: boolean; selectedNode?: NodeDataClass }>({
   isOpened: false,
   selectedNode: undefined,
@@ -77,37 +75,64 @@ onMounted(() => {
   if (!graphNode) {
     throw Error('Node for graph not found.');
   }
-  cy.mount(graphNode);
-  cy.on('tap', function (event) {
+  graph.mount(graphNode);
+  graph.on('tap', function (event) {
     // target holds a reference to the originator
     // of the event (core or element)
-    var evtTarget = event.target;
-
-    if (evtTarget === cy) {
-      console.log('tap on background');
+    const evtTarget = event.target;
+    const resetNodeAnimation = () => {
+      if (panel.selectedNode) {
+        const cyNode = graph.$id(panel.selectedNode.sourceId);
+        cyNode.stop();
+        cyNode.style('width', 30);
+        cyNode.style('height', 30);
+      }
+    };
+    if (evtTarget === graph) {
       panel.isOpened = false;
+      resetNodeAnimation();
+      panel.selectedNode = undefined;
     } else if (evtTarget) {
       if (!isCytoNode(evtTarget)) {
         return;
       }
-
-      evtTarget.data().nodeData;
-      //TODO fn type narrow Node
-      // change class currently selected node;
-      // ouvrir un pannel avec les data du selected node
-      console.log('tap on some element');
-      console.log('gboDebug: type', evtTarget.isNode());
-      console.log(
-        'gboDebug:[evtTarget.data().nodeData]',
-        evtTarget.data().nodeData
-      );
-      panel.selectedNode = evtTarget.data().nodeData;
       panel.isOpened = true;
+      resetNodeAnimation();
+      panel.selectedNode = evtTarget.data().nodeData;
+      const pulseIfSelected = () => {
+        panel.selectedNode;
+        if (evtTarget.id() != panel.selectedNode?.sourceId) {
+          return;
+        }
+        const shiftVal = 4;
+        evtTarget.animate({
+          style: { width: 32, height: 32 },
+          position: {
+            x: evtTarget.position().x,
+            y: evtTarget.position().y - shiftVal,
+          },
+          easing: 'ease-in',
+          duration: 1100,
+          complete: () => {
+            evtTarget.animate({
+              style: { width: 30, height: 30 },
+              position: {
+                x: evtTarget.position().x,
+                y: evtTarget.position().y + shiftVal,
+              },
+              easing: 'ease',
+              duration: 1100,
+              complete: pulseIfSelected,
+            });
+          },
+        });
+      };
+      pulseIfSelected();
     }
   });
   nextTick(async () => {
     try {
-      await new GraphBuilder().build(props.initRecords, cy);
+      await new GraphBuilder().build(props.initRecords, graph);
       resetNodePosition();
     } catch (error) {
       notifyError($q, errorMsgExtractor(error));
@@ -116,8 +141,10 @@ onMounted(() => {
 });
 
 const resetNodePosition = () => {
-  cy.layout({
-    name: 'dagre',
-  }).run();
+  graph
+    .layout({
+      name: 'dagre',
+    })
+    .run();
 };
 </script>
