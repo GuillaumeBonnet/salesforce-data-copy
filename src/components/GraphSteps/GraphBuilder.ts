@@ -1,10 +1,10 @@
 import { Log } from './Log';
 import { SfRecord } from 'app/src-electron/sfdxUtils';
 import { Core } from 'cytoscape';
-import { EdgeNotVisited, NodeData } from 'src/models/GraphTypes';
+import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 
 export class GraphBuilder {
-  async build(initRecords: SfRecord[], graph: Core<{ nodeData: NodeData }>) {
+  async build(initRecords: SfRecord[], graph: Core<NodeData>) {
     const edgesNotVisited: Array<EdgeNotVisited> = [];
 
     for (const recordData of initRecords) {
@@ -19,7 +19,6 @@ export class GraphBuilder {
       // the initial records will be queried twice but it doesn't matter
       // compared to the number of SOQL that will be done anyway
     }
-    let prevNodeId = '';
     while (edgesNotVisited.length != 0) {
       const lookupEdge = edgesNotVisited.shift();
       if (!lookupEdge) {
@@ -29,6 +28,17 @@ export class GraphBuilder {
         Log.info(
           `Record ${lookupEdge.targetObjectName}:${lookupEdge.lookupId} already queried before during the run.`
         );
+        if (lookupEdge.sourceId) {
+          Log.info('Creating edge');
+          graph.add({
+            group: 'edges',
+            data: {
+              source: lookupEdge.sourceId,
+              target: lookupEdge.lookupId,
+              label: lookupEdge.lookupName,
+            },
+          });
+        }
         continue;
       }
       const nextRecordData = (
@@ -39,20 +49,22 @@ export class GraphBuilder {
         )
       )[0];
 
-      const nextRecordNode = new NodeData(nextRecordData);
+      const nextRecordNode = new NodeDataClass(nextRecordData);
       graph.add({
         group: 'nodes',
         data: {
           id: nextRecordNode.sourceData.Id,
           nodeData: nextRecordNode,
+          label: nextRecordNode.label,
         },
       });
-      if (prevNodeId) {
+      if (lookupEdge.sourceId) {
         graph.add({
           group: 'edges',
           data: {
-            source: prevNodeId,
-            target: nextRecordNode.sourceData.Id,
+            source: lookupEdge.sourceId,
+            target: lookupEdge.lookupId,
+            label: lookupEdge.lookupName,
           },
         });
         graph
@@ -61,7 +73,6 @@ export class GraphBuilder {
           })
           .run();
       }
-      prevNodeId = nextRecordNode.sourceData.Id;
       //TODO displayAsCurrentNode(nextRecordNode.sourceData.Id);
 
       if (lookupEdge.targetObjectName == 'User') {
@@ -80,6 +91,7 @@ export class GraphBuilder {
           continue;
         }
         const newEdgeToVisit: EdgeNotVisited = {
+          sourceId: nextRecordNode.sourceId,
           lookupId: lookupValue,
           targetObjectName: lookupField.sObjectName,
           lookupName: lookupField.name,

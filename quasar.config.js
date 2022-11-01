@@ -42,6 +42,9 @@ module.exports = configure(function (/* ctx */) {
         'QIcon',
         'QInput',
         'QDialog',
+        'QScrollArea',
+        'QDrawer',
+        'QTable',
       ],
       // directives: [],
 

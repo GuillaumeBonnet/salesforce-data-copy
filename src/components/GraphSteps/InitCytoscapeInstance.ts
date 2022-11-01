@@ -6,7 +6,7 @@ import dagre from 'cytoscape-dagre';
 
 const getEmptyGraph = () => {
   cytoscape.use(dagre);
-  const cy = cytoscape<{ nodeData: NodeData }>({
+  const cy = cytoscape<NodeData>({
     elements: { nodes: [], edges: [] },
     style: [
       // the stylesheet for the graph
@@ -17,7 +17,12 @@ const getEmptyGraph = () => {
           label: 'data(id)',
         },
       },
-
+      {
+        selector: 'node[label]',
+        style: {
+          label: 'data(label)',
+        },
+      },
       {
         selector: 'edge',
         style: {
@@ -26,6 +31,15 @@ const getEmptyGraph = () => {
           'target-arrow-color': '#ccc',
           'target-arrow-shape': 'triangle',
           'curve-style': 'bezier',
+        },
+      },
+      {
+        selector: 'edge[label]',
+        css: {
+          label: 'data(label)',
+          'text-rotation': 'autorotate',
+          'text-margin-x': 0,
+          'text-margin-y': 0,
         },
       },
     ],

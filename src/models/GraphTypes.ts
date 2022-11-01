@@ -1,6 +1,7 @@
 import { SfRecord } from 'app/src-electron/sfdxUtils';
+import cytoscape from 'cytoscape';
 
-export class NodeData {
+class NodeDataClass {
   constructor(
     public sourceData: SfRecord,
     public targetData: SfRecord = {
@@ -43,12 +44,27 @@ export class NodeData {
     }
     return this.sourceData.attributes.type;
   }
+
+  get label() {
+    return `[${this.type}] ${this.sourceData['Name'] || this.sourceId}`;
+  }
 }
 
+interface NodeData {
+  nodeData: NodeDataClass;
+  label: string;
+}
 interface EdgeNotVisited {
+  sourceId?: string;
   lookupId: string;
   targetObjectName: string;
   lookupName: string;
 }
 
-export type { EdgeNotVisited };
+function isCytoNode(node: any): node is cytoscape.NodeSingular<NodeData> {
+  return (
+    node && node.isNode && typeof node.isNode == 'function' && node.isNode()
+  );
+}
+export { isCytoNode, NodeDataClass };
+export type { EdgeNotVisited, NodeData };
