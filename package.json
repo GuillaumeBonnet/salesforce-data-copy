@@ -1,7 +1,7 @@
 {
   "name": "salesforce-data-copy",
   "version": "0.0.1",
-  "description": "Desktop app that copies records and their related data from one sandbox to another. The process is piloted by a Graphical User Interface displaying the data graph in real time.",
+  "description": "Desktop app that copies Salesforce records and their related data from one sandbox to another. The process is piloted by a Graphical User Interface displaying the data graph in real time.",
   "productName": "salesforce data copy",
   "author": "Guillaume Bonnet <7252481+GuillaumeBonnet@users.noreply.github.com>",
   "license": "BSD-3-Clause",
