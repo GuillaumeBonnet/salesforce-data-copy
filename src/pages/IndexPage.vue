@@ -51,7 +51,7 @@
             v-if="step > 1"
             flat
             color="primary"
-            @click="stepper?.previous()"
+            @click="step == 3 ? (step = 1) : stepper?.previous()"
             label="Back"
             class="q-ml-sm"
           />
@@ -153,6 +153,6 @@ const goToGraphBuildingStep = async () => {
 };
 
 const goToUpsertStep = async () => {
-  stepper.value?.next();
+  step.value = 3;
 };
 </script>

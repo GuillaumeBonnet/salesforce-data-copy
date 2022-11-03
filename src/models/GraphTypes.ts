@@ -59,6 +59,7 @@ interface EdgeNotVisited {
   lookupId: string;
   targetObjectName: string;
   lookupName: string;
+  isInitialRecord?: boolean;
 }
 
 function isCytoNode(node: any): node is cytoscape.NodeSingular<NodeData> {

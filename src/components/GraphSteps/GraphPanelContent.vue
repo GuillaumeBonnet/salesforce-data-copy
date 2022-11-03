@@ -9,15 +9,18 @@
         @click="$emit('closePanel')"
       ></QBtn>
     </div>
-    <div class="p-2 pt-0 flex-grow flex flex-col">
+    <div class="p-4 pt-0 flex-grow flex flex-col">
       <div class="" v-if="!nodeSelected">No node selected</div>
       <template v-if="nodeSelected">
-        <div class="underline text-center font-semibold text-lg">
+        <div class="underline text-center font-semibold text-lg mb-2">
           {{ nodeSelected.label }}
         </div>
-        <div class="flex gap-1">
-          <div class="underline">Current state:</div>
-          <span class="">{{ nodeSelected.state }}</span>
+        <div class="flex justify-between">
+          <div class="flex gap-1">
+            <div class="underline">Current state:</div>
+            <span class="">{{ nodeSelected.state }}</span>
+          </div>
+          <div v-if="nodeSelected.isInitialRecord">[Initial record]</div>
         </div>
         <div class="flex-grow">
           <q-table

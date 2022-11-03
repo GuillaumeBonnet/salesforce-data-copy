@@ -15,6 +15,7 @@ export class GraphBuilder {
         lookupId: recordData.Id,
         targetObjectName: recordData.attributes.type,
         lookupName: 'Id',
+        isInitialRecord: true,
       });
       // the initial records will be queried twice but it doesn't matter
       // compared to the number of SOQL that will be done anyway
@@ -50,6 +51,10 @@ export class GraphBuilder {
       )[0];
 
       const nextRecordNode = new NodeDataClass(nextRecordData);
+      if (lookupEdge.isInitialRecord) {
+        // in this case it's not an edge but the queue if just filled to initiate the algorithm
+        nextRecordNode.isInitialRecord = true;
+      }
       graph.add({
         group: 'nodes',
         data: {

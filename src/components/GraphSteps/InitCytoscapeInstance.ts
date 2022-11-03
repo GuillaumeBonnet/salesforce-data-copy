@@ -1,5 +1,5 @@
 import cytoscape, { CytoscapeOptions, ElementsDefinition } from 'cytoscape';
-import { NodeData } from 'src/models/GraphTypes';
+import { isCytoNode, NodeData } from 'src/models/GraphTypes';
 import { LAYOUT_OPTIONS_DAGRE } from './CytoscapeConf';
 
 import dagre from 'cytoscape-dagre';
@@ -88,6 +88,29 @@ const getGraph = (elements?: CytoscapeOptions<NodeData>['elements']) => {
       },
     ],
     layout: LAYOUT_OPTIONS_DAGRE,
+  });
+  cy.on('add', 'node', (event) => {
+    if (!isCytoNode(event.target)) {
+      throw Error('Unexpected event should be on a node.');
+    }
+    if (event.target.data().nodeData.isInitialRecord) {
+      event.target.addClass(nodeStatesClasses.INITIAL_RECORD);
+    }
+  });
+  cy.on('data', 'node', (event, extraParams) => {
+    // .. do nodeData changes then
+    // you have to call the data function as such to trigger the event:
+    // event.target.data('nodeData', event.target.data().nodeData);
+
+    if (!isCytoNode(event.target)) {
+      throw Error('Unexpected event, it should be on a node.');
+    }
+    const classes: string[] = [];
+    if (event.target.data().nodeData.isInitialRecord) {
+      classes.push(nodeStatesClasses.INITIAL_RECORD);
+    }
+    classes.push(nodeStatesClasses[event.target.data().nodeData.state]);
+    event.target.classes(classes);
   });
   return cy;
 };
