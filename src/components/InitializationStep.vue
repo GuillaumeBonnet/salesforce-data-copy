@@ -64,7 +64,14 @@ import SelectOrganization from './SelectOrganization.vue';
 
 let previousInitCond: Awaited<
   ReturnType<typeof window.electronApi.persistentStore.getInitialConditions>
->;
+> = reactive({
+  fromUsername: '',
+  toUsername: '',
+  queryBits: {
+    sObjectName: '',
+    whereClause: '',
+  },
+});
 let currentInitCond: typeof previousInitCond = reactive({
   fromUsername: '',
   toUsername: '',
@@ -79,7 +86,7 @@ onMounted(async function () {
     currentInitCond,
     await window.electronApi.persistentStore.getInitialConditions()
   ); // reactive obj have to stay the same ref (use const)
-  previousInitCond = JSON.parse(JSON.stringify(currentInitCond));
+  Object.assign(previousInitCond, JSON.parse(JSON.stringify(currentInitCond)));
   if (
     currentInitCond.fromUsername &&
     !fromSandbox.options.includes(currentInitCond.fromUsername)
@@ -98,6 +105,7 @@ onMounted(async function () {
 
 const emit = defineEmits<{
   (e: 'isNextStepDisabled', value: boolean): void;
+  (e: 'isInitCondSameAsPrevious', value: boolean): void;
 }>();
 
 const fromSandbox = reactive({
@@ -169,11 +177,24 @@ watch(
   }
 );
 
+const isInitCondSameAsPrevious = computed(() => {
+  return (
+    currentInitCond.fromUsername == previousInitCond.fromUsername &&
+    currentInitCond.toUsername == previousInitCond.toUsername &&
+    currentInitCond.queryBits.sObjectName ==
+      previousInitCond.queryBits.sObjectName &&
+    currentInitCond.queryBits.whereClause ==
+      previousInitCond.queryBits.whereClause
+  );
+});
+watch(isInitCondSameAsPrevious, (val) => {
+  emit('isInitCondSameAsPrevious', val);
+});
+
 const getInitCond = async () => {
   const initCond: typeof currentInitCond & { hasChanged: boolean } = JSON.parse(
     JSON.stringify(currentInitCond)
   );
-  initCond.hasChanged = false;
   if (
     currentInitCond.fromUsername != previousInitCond.fromUsername ||
     currentInitCond.toUsername != previousInitCond.toUsername ||

@@ -13,6 +13,9 @@
           @is-next-step-disabled="
             (value) => (graphBuildingStepDisabled = value)
           "
+          @is-init-cond-same-as-previous="
+            (value) => (isInitCondSameAsPrevious = value)
+          "
         ></InitializationStep>
       </q-step>
 
@@ -43,7 +46,7 @@
       </q-step>
 
       <template v-slot:navigation>
-        <q-stepper-navigation class="flex">
+        <q-stepper-navigation class="flex gap-4">
           <q-btn
             v-if="step > 1"
             flat
@@ -53,13 +56,21 @@
             class="q-ml-sm"
           />
           <div class="flex-grow"></div>
-          <q-btn
-            v-if="step == 1"
-            @click="goToGraphBuildingStep()"
-            color="primary"
-            label="Start data extraction"
-            :disable="graphBuildingStepDisabled"
-          />
+          <template v-if="step == 1">
+            <q-btn
+              @click="goToGraphBuildingStep()"
+              :color="isInitCondSameAsPrevious ? 'secondary' : 'primary'"
+              label="Start data extraction"
+              :disable="graphBuildingStepDisabled"
+            />
+            <q-btn
+              v-if="isInitCondSameAsPrevious"
+              @click="goToUpsertStep()"
+              color="primary"
+              label="Skip to upsertion"
+              :disable="graphBuildingStepDisabled"
+            />
+          </template>
           <q-btn
             v-if="step == 2"
             @click="goToUpsertStep()"
@@ -98,6 +109,7 @@ import GraphUpsertion from 'src/components/GraphSteps/GraphUpsertion.vue';
 const step = ref(1);
 const stepper = ref<InstanceType<typeof QStepper> | null>(null);
 const graphBuildingStepDisabled = ref(true);
+const isInitCondSameAsPrevious = ref(false);
 const upsertStepDisabled = ref(true);
 const initializationStepCmp = ref<InstanceType<
   typeof InitializationStep
