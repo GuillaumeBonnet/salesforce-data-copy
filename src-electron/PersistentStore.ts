@@ -1,4 +1,4 @@
-import { ElementDefinition } from 'cytoscape';
+import { ElementDefinition, ElementsDefinition } from 'cytoscape';
 import ElectronStore from 'electron-store';
 import { NodeData } from 'src/models/GraphTypes';
 
@@ -11,7 +11,7 @@ interface PersistentStore {
     fromUsername: string;
     toUsername: string;
   };
-  graphElementsBeforeUpsert: Array<ElementDefinition<NodeData>>; //array of elements as json
+  graphElementsBeforeUpsert?: ElementsDefinition<NodeData>; //array of elements as json
 }
 const persistentStore = new ElectronStore<PersistentStore>({
   schema: {

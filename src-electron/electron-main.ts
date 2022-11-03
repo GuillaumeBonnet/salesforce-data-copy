@@ -64,7 +64,6 @@ let connectionToOrg: Connection<Schema>;
 const electronApi = {
   sfdx: {
     getAliases: async function getSfdxAuthAliases() {
-      //TODO alias instead of username
       return (await AuthInfo.listAllAuthorizations()).map(
         (auth) => auth.username
       );
@@ -132,7 +131,7 @@ const electronApi = {
       return persistentStore.set('initialConditions', initialConditions);
     },
     getGraphBeforeUpsertion: async () => {
-      return persistentStore.get('graphElementsBeforeUpsert', []);
+      return persistentStore.get('graphElementsBeforeUpsert');
     },
     setGraphBeforeUpsertion: async (
       graphElementsBeforeUpsert: PersistentStore['graphElementsBeforeUpsert']

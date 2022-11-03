@@ -1,4 +1,4 @@
-import cytoscape from 'cytoscape';
+import cytoscape, { CytoscapeOptions, ElementsDefinition } from 'cytoscape';
 import { NodeData } from 'src/models/GraphTypes';
 import { LAYOUT_OPTIONS_DAGRE } from './CytoscapeConf';
 
@@ -13,10 +13,13 @@ const nodeStatesClasses = {
   NONE: '',
 };
 
-const getEmptyGraph = () => {
+const getGraph = (elements?: CytoscapeOptions<NodeData>['elements']) => {
+  if (!elements) {
+    elements = { nodes: [], edges: [] };
+  }
   cytoscape.use(dagre);
   const cy = cytoscape<NodeData>({
-    elements: { nodes: [], edges: [] },
+    elements,
     wheelSensitivity: 0.7, //TODO test with other mouses
     style: [
       // the stylesheet for the graph
@@ -89,4 +92,4 @@ const getEmptyGraph = () => {
   return cy;
 };
 
-export { getEmptyGraph, nodeStatesClasses };
+export { getGraph, nodeStatesClasses };

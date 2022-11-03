@@ -73,7 +73,6 @@ export class GraphBuilder {
           })
           .run();
       }
-      //TODO displayAsCurrentNode(nextRecordNode.sourceData.Id);
 
       if (lookupEdge.targetObjectName == 'User') {
         continue;
