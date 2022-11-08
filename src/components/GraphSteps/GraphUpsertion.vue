@@ -1,5 +1,5 @@
 <template>
-  <GraphUi v-if="graph.test" :graph="graph.test" ref="graphUi"></GraphUi>
+  <GraphUi :graph="graph" ref="graphUi"></GraphUi>
 </template>
 
 <style></style>
@@ -12,8 +12,9 @@ import { NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { notifyError } from '../vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
+import { mapStateToClass } from './CytoscapeConf';
 
-const graph: { test?: cytoscape.Core<NodeData> } = reactive({});
+const graph = getGraph();
 const $q = useQuasar();
 const graphUi = ref<InstanceType<typeof GraphUi> | null>(null);
 onMounted(async () => {
@@ -21,10 +22,15 @@ onMounted(async () => {
     try {
       const graphElements =
         await window.electronApi.persistentStore.getGraphBeforeUpsertion();
-      graph.test = getGraph(graphElements);
+      if (graphElements) {
+        graph.add(graphElements);
+      }
       setTimeout(() => {
         graphUi.value?.resetNodePosition();
       });
+      const initialNodes = graph.nodes(
+        `node.${mapStateToClass.INITIAL_RECORD}`
+      );
     } catch (error) {
       notifyError($q, errorMsgExtractor(error));
     }

@@ -18,26 +18,15 @@ type PermissionSet = {
   fieldPermissions: Array<{ [key: string]: string }>;
 };
 
-// type NodeStateChange = Omit<GraphNode, 'sourceId' | 'targetId' | 'type'> & {
-//   changeType: 'NODE_STATE_CHANGE';
-// };
-type WholeGraphChange = {
-  changeType: 'WHOLE_GRAPH_CHANGE';
-  graph: DataGraph;
-};
-type CurrentNodeChange = {
-  changeType: 'CURRENT_NODE_CHANGE';
-  nodeId: string;
-};
-// type WebSocketMessage = NodeStateChange | WholeGraphChange | CurrentNodeChange;
-
-export {
-  SalesforceApiName,
-  PermissionSetRawData,
-  PermissionSet,
-  // WebSocketMessage,
-  // NodeStateChange,
-  WholeGraphChange,
+type LookupMetadata = {
+  name: string;
+  sObjectsReferenced: string[];
 };
 
-export type { SfRecord };
+type CacheLookupMetadata = {
+  [lookupApiName: string]: LookupMetadata[];
+};
+
+export { SalesforceApiName, PermissionSetRawData, PermissionSet };
+
+export type { SfRecord, CacheLookupMetadata, LookupMetadata };

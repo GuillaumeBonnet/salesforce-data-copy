@@ -2,6 +2,7 @@ import { Log } from './Log';
 import { SfRecord } from 'app/src-electron/sfdxUtils';
 import { Core } from 'cytoscape';
 import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
+import { LookupMetadata } from 'src/models/types';
 
 export class GraphBuilder {
   async build(initRecords: SfRecord[], graph: Core<NodeData>) {
@@ -50,6 +51,10 @@ export class GraphBuilder {
         )
       )[0];
 
+      if (!nextRecordData) {
+        throw Error('Querry returned nothing.');
+      }
+
       const nextRecordNode = new NodeDataClass(nextRecordData);
       if (lookupEdge.isInitialRecord) {
         // in this case it's not an edge but the queue if just filled to initiate the algorithm
@@ -79,7 +84,11 @@ export class GraphBuilder {
           .run();
       }
 
-      if (lookupEdge.targetObjectName == 'User') {
+      if (
+        lookupEdge.targetObjectName == 'User' ||
+        lookupEdge.targetObjectName == 'Group' ||
+        lookupEdge.targetObjectName == 'Queue'
+      ) {
         continue;
       }
       const lookUpFields =
@@ -87,17 +96,29 @@ export class GraphBuilder {
           'FROM',
           lookupEdge.targetObjectName
         );
-      //TODO lookUpFields could be cached to be fetched only once per run and per Object Type
 
       for (const lookupField of lookUpFields) {
         const lookupValue = nextRecordNode.sourceData[lookupField.name];
         if (!lookupValue) {
           continue;
         }
+        const getTargetObjectName = (lookupField: LookupMetadata) => {
+          if (lookupField.sObjectsReferenced.length == 1) {
+            return lookupField.sObjectsReferenced[0];
+          } else if (lookupField.name == 'DelegatedApproverId') {
+            return 'User'; // can't query DelegatedApprover.Type so we bet on user but we should check the id prefix instead.
+          } else {
+            const lookupField_WithoutId = lookupField.name.replace(/id$/gi, '');
+            return (
+              (nextRecordNode.sourceData[lookupField_WithoutId] as any).Type ||
+              'User'
+            );
+          }
+        };
         const newEdgeToVisit: EdgeNotVisited = {
           sourceId: nextRecordNode.sourceId,
           lookupId: lookupValue,
-          targetObjectName: lookupField.sObjectName,
+          targetObjectName: getTargetObjectName(lookupField),
           lookupName: lookupField.name,
         };
         edgesNotVisited.push(newEdgeToVisit);
