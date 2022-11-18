@@ -48,100 +48,13 @@ function createWindow() {
   });
 }
 
-import { AuthInfo, Connection } from '@salesforce/core';
 // import { ipcApi } from './channels';
-import {
-  lookupsMetadataOfSobject,
-  queryWithAllCreatableFields,
-  startOrgConnexion,
-} from './sfdxUtils';
-import { Schema } from 'jsforce';
-import { PersistentStore, persistentStore } from './PersistentStore';
-
-let connectionFromOrg: Connection<Schema>;
-let connectionToOrg: Connection<Schema>;
+import { sfdx } from './frontEndApis/sfdx/sfdxApi';
+import { persistentStoreApi } from './frontEndApis/store/persistentStoreApi';
 
 const electronApi = {
-  sfdx: {
-    getAliases: async function getSfdxAuthAliases() {
-      return (await AuthInfo.listAllAuthorizations()).map(
-        (auth) => auth.username
-      );
-    },
-    testConnections: async function testConnections(userNames: {
-      fromUsername: string;
-      toUsername: string;
-    }) {
-      const output = {
-        fromSandbox: {
-          errorMsg: '',
-          successfulConnection: false,
-        },
-        toSandbox: {
-          errorMsg: '',
-          successfulConnection: false,
-        },
-      };
-      try {
-        connectionFromOrg = await startOrgConnexion(userNames.fromUsername);
-      } catch (error) {
-        output.fromSandbox.errorMsg = errorMsg(error);
-      }
-      output.fromSandbox.successfulConnection = true;
-      try {
-        connectionToOrg = await startOrgConnexion(userNames.toUsername);
-      } catch (error) {
-        output.toSandbox.errorMsg = errorMsg(error);
-      }
-      output.toSandbox.successfulConnection = true;
-      return output;
-    },
-    queryWithAllCreatableFields: async function (
-      sandbox: 'FROM' | 'TO',
-      sObjectName: string,
-      whereClause?: string
-    ) {
-      const connection: Connection =
-        sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
-      return queryWithAllCreatableFields(connection, sObjectName, whereClause);
-    },
-    lookupsMetadataOfSobject: async function (
-      sandbox: 'FROM' | 'TO',
-      sObjectName: string
-    ) {
-      const connection: Connection =
-        sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
-      return lookupsMetadataOfSobject(sObjectName, connection);
-    },
-  },
-  persistentStore: {
-    getInitialConditions: async () => {
-      return persistentStore.get('initialConditions', {
-        fromUsername: '',
-        toUsername: '',
-        queryBits: {
-          sObjectName: '',
-          whereClause: '',
-        },
-      });
-    },
-    setInitialConditions: async (
-      initialConditions: PersistentStore['initialConditions']
-    ) => {
-      return persistentStore.set('initialConditions', initialConditions);
-    },
-    getGraphBeforeUpsertion: async () => {
-      return persistentStore.get('graphElementsBeforeUpsert');
-    },
-    setGraphBeforeUpsertion: async (
-      graphElementsBeforeUpsert: PersistentStore['graphElementsBeforeUpsert']
-    ) => {
-      return persistentStore.set(
-        'graphElementsBeforeUpsert',
-        graphElementsBeforeUpsert
-      );
-    },
-  },
+  sfdx: sfdx,
+  persistentStore: persistentStoreApi,
 };
 
 type ElectronApi = typeof electronApi;

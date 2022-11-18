@@ -4,6 +4,7 @@ const mapStateToClass = {
   PREPARING_UPSERT: 'node-preparing-upsert',
   UPSERTED: 'node-upsert',
   SKIPPED: 'node-skipped',
+  CURRENT_NODE: 'current-node',
   NONE: '',
 };
 
@@ -110,9 +111,15 @@ const CYTOSCAPE_STYLESHEETS: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: '.' + mapStateToClass.INITIAL_RECORD,
+    selector: '.' + mapStateToClass.CURRENT_NODE,
     style: {
       'border-width': '4px',
+    },
+  },
+  {
+    selector: '.' + mapStateToClass.INITIAL_RECORD,
+    style: {
+      'border-width': '1px',
       'border-color': '#0066cc',
     },
   },

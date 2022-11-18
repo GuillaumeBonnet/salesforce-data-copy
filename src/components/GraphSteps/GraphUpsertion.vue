@@ -13,6 +13,7 @@ import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { notifyError } from '../vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
 import { mapStateToClass } from './CytoscapeConf';
+import GraphUpserter from './GraphUpserter';
 
 const graph = getGraph();
 const $q = useQuasar();
@@ -28,9 +29,7 @@ onMounted(async () => {
       setTimeout(() => {
         graphUi.value?.resetNodePosition();
       });
-      const initialNodes = graph.nodes(
-        `node.${mapStateToClass.INITIAL_RECORD}`
-      );
+      new GraphUpserter(graph, $q);
     } catch (error) {
       notifyError($q, errorMsgExtractor(error));
     }

@@ -33,6 +33,10 @@ onMounted(() => {
     try {
       await new GraphBuilder().build(props.initRecords, graph);
       graphUi.value?.resetNodePosition();
+      console.log(
+        'gboDebug:[graph.elements().jsons()]',
+        graph.elements().jsons()
+      );
       await window.electronApi.persistentStore.setGraphBeforeUpsertion(
         graph.elements().jsons() as any
       ); //TODO store au moment de cliquer sur le bouton pour garder les positions des noeuds

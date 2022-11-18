@@ -80,7 +80,6 @@ const queryWithAllCreatableFields = async (
   }
   const creatableFields = await findAllCreatableFields(connection, sObjectName);
   if (!whereClause) {
-    // I don't think this case ever happens as of this comment timestamp
     whereClause = '';
   } else if (!whereClause.trim().toUpperCase().startsWith('WHERE')) {
     whereClause = 'WHERE ' + whereClause;

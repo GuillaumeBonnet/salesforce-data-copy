@@ -1,11 +1,14 @@
 import { Log } from './Log';
-import { SfRecord } from 'app/src-electron/sfdxUtils';
+import { SfRecord } from 'app/src-electron/frontEndApis/sfdx/sfdxUtils';
 import { Core } from 'cytoscape';
 import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { LookupMetadata } from 'src/models/types';
 
 export class GraphBuilder {
   async build(initRecords: SfRecord[], graph: Core<NodeData>) {
+    /**
+     * @description actually it's edges to nodes that aren't visited
+     */
     const edgesNotVisited: Array<EdgeNotVisited> = [];
 
     for (const recordData of initRecords) {

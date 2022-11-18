@@ -1,7 +1,4 @@
-import { DataGraph } from './DataGraph';
 import { Record } from 'jsforce';
-
-declare module 'cytoscape-dagre';
 
 type SalesforceApiName = string;
 type SfRecord = Required<Record>;
