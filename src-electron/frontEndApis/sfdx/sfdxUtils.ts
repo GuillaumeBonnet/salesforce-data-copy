@@ -151,50 +151,10 @@ const findCreatableUniqueField = async (
   }
 };
 
-const findUserInSandboxOrg = async (
-  userName: string,
-  connection: Connection
-) => {
-  const userNameBits = userName.split('.');
-  userNameBits.pop();
-  const userNameProd = userNameBits.join('.');
-  const query = `SELECT Id, IsActive FROM User WHERE Username LIKE '${userNameProd}%'`;
-  const queryResult_RecordAlreadyExists = await connection.query(query);
-  if (
-    queryResult_RecordAlreadyExists &&
-    queryResult_RecordAlreadyExists.records.length == 0
-  ) {
-    throw Error(`User ${userName} => ${userNameProd} not found in target Org.`);
-  } else {
-    return queryResult_RecordAlreadyExists.records[0];
-  }
-};
-
-interface UpsertError {
-  name: string;
-  errorCode: string;
-  message: string;
-  //fields: Array<Object>;
-}
-
-const isUpsertError = (value: unknown): value is UpsertError => {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'name' in value &&
-    'errorCode' in value &&
-    'message' in value
-  );
-};
-
 export {
   findAllCreatableFields,
   startOrgConnexion,
   queryWithAllCreatableFields,
   lookupsMetadataOfSobject,
   findCreatableUniqueField as findUniqueField,
-  findUserInSandboxOrg,
-  isUpsertError,
 };
-
-export type { SfRecord, UpsertError };

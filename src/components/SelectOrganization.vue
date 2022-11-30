@@ -20,7 +20,7 @@ const props = withDefaults(
   defineProps<{
     label?: string;
     disable?: boolean;
-    options: string[];
+    options: { label: string; value: string }[];
     errorMsg?: string;
     successfulConnection: boolean;
     modelValue: string;
@@ -38,10 +38,10 @@ const emit = defineEmits(['update:modelValue']);
 
 const selection = computed({
   get() {
-    return props.modelValue;
+    return props.options.find((option) => option.value == props.modelValue);
   },
   set(value) {
-    emit('update:modelValue', value);
+    emit('update:modelValue', value?.value);
   },
 });
 </script>

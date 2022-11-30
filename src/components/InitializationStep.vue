@@ -81,7 +81,12 @@ let currentInitCond: typeof previousInitCond = reactive({
   },
 });
 onMounted(async function () {
-  fromSandbox.options = await window.electronApi.sfdx.getAliases();
+  fromSandbox.options = await (
+    await window.electronApi.sfdx.getAliases()
+  ).map((aliasAndUsername) => ({
+    label: `${aliasAndUsername.alias}(${aliasAndUsername.username})`,
+    value: aliasAndUsername.username,
+  }));
   Object.assign(
     currentInitCond,
     await window.electronApi.persistentStore.getInitialConditions()
@@ -89,14 +94,18 @@ onMounted(async function () {
   Object.assign(previousInitCond, JSON.parse(JSON.stringify(currentInitCond)));
   if (
     currentInitCond.fromUsername &&
-    !fromSandbox.options.includes(currentInitCond.fromUsername)
+    !fromSandbox.options
+      .map((option) => option.value)
+      .includes(currentInitCond.fromUsername)
   ) {
     currentInitCond.fromUsername = '';
   }
   nextTick(() => {
     if (
       previousInitCond.toUsername &&
-      toSandbox.options.includes(previousInitCond.toUsername)
+      toSandbox.options
+        .map((option) => option.value)
+        .includes(previousInitCond.toUsername)
     ) {
       currentInitCond.toUsername = previousInitCond.toUsername; //had be removed when we assigned currentInitCond.toUsername
     }
@@ -109,12 +118,12 @@ const emit = defineEmits<{
 }>();
 
 const fromSandbox = reactive({
-  options: [] as string[],
+  options: [] as { label: string; value: string }[],
   errorMsg: '',
   successfulConnection: false,
 });
 const toSandbox = reactive({
-  options: [] as string[],
+  options: [] as { label: string; value: string }[],
   errorMsg: '',
   successfulConnection: false,
   disable: computed(() => {
@@ -126,7 +135,9 @@ watch(
   () => currentInitCond.fromUsername,
   (value, oldValue) => {
     currentInitCond.toUsername = '';
-    toSandbox.options = fromSandbox.options.filter((option) => option != value);
+    toSandbox.options = fromSandbox.options.filter(
+      (option) => option.value != value
+    );
     fromSandbox.errorMsg = '';
     fromSandbox.successfulConnection = false;
   }

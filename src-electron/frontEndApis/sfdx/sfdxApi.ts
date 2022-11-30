@@ -1,12 +1,12 @@
-import { errorMsg } from '../../utils';
+import { errorMsg, isSfRecord } from '../../utils';
 import { AuthInfo, Connection } from '@salesforce/core';
 import {
   lookupsMetadataOfSobject,
   queryWithAllCreatableFields,
-  SfRecord,
   startOrgConnexion,
 } from './sfdxUtils';
 import { DTfieldName, PermissionSetHandler } from './PermissionSetHandler';
+import { SfRecord } from 'src/models/types';
 
 let connectionFromOrg: Connection;
 let connectionToOrg: Connection;
@@ -14,9 +14,12 @@ let permissionSetHandler: PermissionSetHandler;
 
 const sfdx = {
   getAliases: async function getSfdxAuthAliases() {
-    return (await AuthInfo.listAllAuthorizations()).map(
-      (auth) => auth.username
-    );
+    return (await AuthInfo.listAllAuthorizations()).map((auth) => {
+      return {
+        username: auth.username,
+        alias: auth.aliases?.[0] || 'No Alias',
+      };
+    });
   },
   testConnections: async function testConnections(userNames: {
     fromUsername: string;
@@ -63,10 +66,11 @@ const sfdx = {
       sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
     return lookupsMetadataOfSobject(sObjectName, connection);
   },
-  currentUserId: async function (sandbox: 'FROM' | 'TO') {
+  currentUserInfo: async function (sandbox: 'FROM' | 'TO') {
     const connection: Connection =
       sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
-    return (await connection.identity()).id;
+    const { user_id, username } = await connection.identity();
+    return { username, userId: user_id };
   },
   loadPermissionSetAndAssignement: async function (currentUserIdTo: string) {
     permissionSetHandler = new PermissionSetHandler(
@@ -88,11 +92,18 @@ const sfdx = {
       queryResult_RecordAlreadyExists.records.length == 0
     ) {
       throw Error(
-        `User ${userName} => ${userNameProd} not found in target Org.`
+        `User ${userName} => ${userNameProd} not found in target Org.`,
+        {
+          cause: { code: 'USER_NOT_FOUND' },
+        }
       );
-    } else {
-      return queryResult_RecordAlreadyExists.records[0];
     }
+    const ret = queryResult_RecordAlreadyExists.records[0];
+
+    if (!isSfRecord(ret)) {
+      throw Error('Id should not be null.');
+    }
+    return ret;
   },
   upsertOrgTo: async function (record: SfRecord) {
     return await connectionToOrg.upsert(

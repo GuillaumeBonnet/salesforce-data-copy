@@ -1,3 +1,4 @@
+import { NodeDataClass } from 'src/models/GraphTypes';
 import { PersistentStore, persistentStore } from './PersistentStore';
 
 const persistentStoreApi = {

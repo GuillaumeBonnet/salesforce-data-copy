@@ -29,7 +29,7 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
     testConnections: '',
     queryWithAllCreatableFields: '',
     lookupsMetadataOfSobject: '',
-    currentUserId: '',
+    currentUserInfo: '',
     loadPermissionSetAndAssignement: '',
     findUser: '',
     upsertOrgTo: '',

@@ -3,13 +3,11 @@ import { isCytoEdge, isCytoNode, NodeData } from 'src/models/GraphTypes';
 import { mapStateToClass } from './CytoscapeConf';
 import { NodeCollection, NodeSingular } from 'cytoscape';
 import { UpsertResult, SaveResult } from 'jsforce';
-import {
-  isUpsertError,
-  SfRecord,
-  UpsertError,
-} from 'app/src-electron/frontEndApis/sfdx/sfdxUtils';
 import { QVueGlobals } from 'quasar';
 import { DTfieldName } from 'app/src-electron/frontEndApis/sfdx/PermissionSetHandler';
+import { notifyError } from '../vueUtils';
+import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
+import { SfRecord } from 'src/models/types';
 
 export default class GraphUpserter {
   constructor(
@@ -18,8 +16,10 @@ export default class GraphUpserter {
   ) {}
   mapSObjectsWithDataTransField: { [key: string]: boolean } = {};
   ongoingCyclicPathUpserted: string[] = [];
-  _currentNodeId = '';
-  currentUserIdTo = '';
+  private _currentNodeId = '';
+  currentUserInfo_To: Awaited<
+    ReturnType<typeof window.electronApi.sfdx.currentUserInfo>
+  > = { userId: '', username: '' };
 
   set currentNodeId(value) {
     if (this._currentNodeId) {
@@ -37,10 +37,12 @@ export default class GraphUpserter {
   }
 
   async init() {
-    this.currentUserIdTo = await window.electronApi.sfdx.currentUserId('TO');
+    this.currentUserInfo_To = await window.electronApi.sfdx.currentUserInfo(
+      'TO'
+    );
     const [, initialNodes] = await Promise.all([
       window.electronApi.sfdx.loadPermissionSetAndAssignement(
-        this.currentUserIdTo
+        this.currentUserInfo_To.userId
       ),
       this.sourceGraph.nodes(`node.${mapStateToClass.INITIAL_RECORD}`),
     ]);
@@ -95,9 +97,11 @@ export default class GraphUpserter {
       },
       Id: '',
     };
-    for (const child of currentNode.children().toArray()) {
-      // the nodes are children from the graph perspective but it's parents nodes seen from Salesforce's prism
-      await this.upsertNodeToTarget(child);
+    for (const edgeToParent of currentNode.outgoers().toArray()) {
+      if (!isCytoEdge(edgeToParent)) {
+        continue; // the currentNode is lumped into the result ouf outgoers (unexpected)
+      }
+      await this.upsertNodeToTarget(edgeToParent.target());
     }
     /* eslint-disable */
     // @ts-ignore
@@ -107,9 +111,10 @@ export default class GraphUpserter {
       return;
     }
     this.currentNodeId = currentNode.id();
+
     for (const edgeToParentRecord of currentNode.outgoers().toArray()) {
       if (!isCytoEdge(edgeToParentRecord)) {
-        throw Error('Unexpected element should be an edge.');
+        continue; // the currentNode is lumped into the result ouf outgoers (unexpected)
       }
       if (!edgeToParentRecord.target().data().nodeData.targetId) {
         // this.changeNodeState(currentNode,'ERROR');
@@ -127,28 +132,58 @@ export default class GraphUpserter {
           !edgeToParentRecord.target().data().nodeData.targetData.IsActive
         ) {
           // inactive user cannot be owners
-          edgeToParentRecord.target().data().nodeData.targetData[
-            edgeToParentRecord.data().label
-          ] = this.currentUserIdTo;
+          currentNodeData.targetData['OwnerId'] =
+            this.currentUserInfo_To.userId;
           continue;
         }
       }
       currentNodeData.targetData[edgeToParentRecord.data().label] =
         edgeToParentRecord.target().data().nodeData.targetId;
     }
-
     const currentNodeType = currentNodeData.type;
     if (currentNodeType == 'User') {
       // TODO username sandbox vs prod
-      const userInTargetOrg = await window.electronApi.sfdx.findUser(
-        'TO',
-        currentNodeData.sourceData.Username
-      );
-      // donc activate user in targetOrg org
-      //TODO think if it's really useful, can surprise user
-      currentNodeData.targetData.IsActive = userInTargetOrg.IsActive;
-      if (!userInTargetOrg.Id) {
-        throw new Error('userInTargetOrg should have an Id');
+      let userInTargetOrg: SfRecord;
+      try {
+        userInTargetOrg = await window.electronApi.sfdx.findUser(
+          'TO',
+          currentNodeData.sourceData.Username
+        );
+      } catch (err: any) {
+        const answer = await new Promise((resolve, reject) => {
+          const errorMsg = `User "${currentNodeData.sourceData.Username}" not found in org TO.`;
+          this.$q
+            .dialog({
+              dark: true,
+              title: errorMsg,
+              message: `Use current user "${this.currentUserInfo_To.username}" instead ?`,
+              cancel: true,
+              persistent: true,
+            })
+            .onOk(() => {
+              resolve('Ok');
+            })
+            .onOk(() => {
+              resolve('Ok');
+            })
+            .onCancel(() => {
+              reject(errorMsg);
+            })
+            .onDismiss(() => {
+              reject(errorMsg);
+            });
+        });
+        if (answer === 'Ok') {
+          userInTargetOrg = await window.electronApi.sfdx.findUser(
+            'TO',
+            this.currentUserInfo_To.username
+          );
+        } else {
+          throw Error(
+            `User "${currentNodeData.sourceData.Username}" not found in org TO.`
+          );
+        }
+        currentNodeData.targetData.IsActive = userInTargetOrg.IsActive;
       }
       currentNodeData.targetId = userInTargetOrg.Id;
       this.changeNodeState(currentNode, 'SKIPPED');
@@ -204,6 +239,7 @@ export default class GraphUpserter {
     }
 
     currentNodeData.targetData[DTfieldName] = currentNodeData.sourceData.Id;
+    delete currentNodeData.targetData.Id;
     Log.stepInGreen('Upserting an Object', currentNodeType);
     let result: UpsertResult | SaveResult;
     try {
@@ -474,3 +510,19 @@ export default class GraphUpserter {
     return recordUpdated;
   }
 }
+interface UpsertError {
+  name: string;
+  errorCode: string;
+  message: string;
+  //fields: Array<Object>;
+}
+
+const isUpsertError = (value: unknown): value is UpsertError => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'name' in value &&
+    'errorCode' in value &&
+    'message' in value
+  );
+};

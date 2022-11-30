@@ -11,7 +11,7 @@ interface PersistentStore {
     fromUsername: string;
     toUsername: string;
   };
-  graphElementsBeforeUpsert?: ElementsDefinition<NodeData>; //array of elements as json
+  graphElementsBeforeUpsert?: ElementDefinition<NodeData>[]; //array of elements as json
 }
 const persistentStore = new ElectronStore<PersistentStore>({
   schema: {

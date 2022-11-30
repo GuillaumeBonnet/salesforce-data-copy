@@ -7,6 +7,7 @@ const notifyError = ($q: QVueGlobals, errorMsg: string) => {
     type: 'negative',
     message: errorMsg,
     multiLine: true,
+    timeout: 10000,
     position: 'center',
     actions: [
       {

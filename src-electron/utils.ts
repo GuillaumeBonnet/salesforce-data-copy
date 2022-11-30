@@ -1,3 +1,6 @@
+import { SfRecord } from 'src/models/types';
+import { Record } from 'jsforce';
+
 const errorMsg = (error: unknown) => {
   if (typeof error == 'string') {
     return error;
@@ -8,4 +11,8 @@ const errorMsg = (error: unknown) => {
   }
 };
 
-export { errorMsg };
+function isSfRecord(record: Record): record is SfRecord {
+  return record && !!record.Id && !!record.attributes;
+}
+
+export { errorMsg, isSfRecord };

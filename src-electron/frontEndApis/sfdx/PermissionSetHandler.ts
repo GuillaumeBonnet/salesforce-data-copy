@@ -28,9 +28,10 @@ class PermissionSetHandler {
       Log.warning('permission set not in org');
     }
     const permissionSetName = await this.permissionSetCreation();
-
-    const permissionSetId = await this.connectionToOrg.query(
-      `SELECT Id FROM PermissionSet WHERE Name = '${permissionSetName}' LIMIT 1`
+    const permissionSetId = (
+      await this.connectionToOrg.query(
+        `SELECT Id FROM PermissionSet WHERE Name = '${permissionSetName}' LIMIT 1`
+      )
     ).records[0].Id;
 
     const permissionSetAssignment = {
