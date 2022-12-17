@@ -121,22 +121,6 @@ const goToGraphBuildingStep = async () => {
   if (initializationStepCmp.value) {
     const initCond = await initializationStepCmp.value.getInitCond();
 
-    await window.electronApi.sfdx.queryWithAllCreatableFields(
-      'FROM',
-      initCond.queryBits.sObjectName,
-      initCond.queryBits.whereClause
-    );
-
-    initRecords.push(
-      (
-        await window.electronApi.sfdx.queryWithAllCreatableFields(
-          'FROM',
-          initCond.queryBits.sObjectName,
-          initCond.queryBits.whereClause
-        )
-      )[0]
-    );
-
     initRecords.push(
       ...(await window.electronApi.sfdx.queryWithAllCreatableFields(
         'FROM',

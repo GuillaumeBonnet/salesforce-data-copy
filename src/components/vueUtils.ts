@@ -1,7 +1,8 @@
 import { QVueGlobals } from 'quasar';
 
-const notifyError = ($q: QVueGlobals, errorMsg: string) => {
+const notifyError = ($q: QVueGlobals, errorMsg: string, error?: unknown) => {
   console.error(errorMsg);
+  console.error(error);
 
   $q.notify({
     type: 'negative',

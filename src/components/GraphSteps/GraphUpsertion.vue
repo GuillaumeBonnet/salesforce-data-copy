@@ -65,7 +65,7 @@ onMounted(async () => {
       if (isCytoNode(currentNode)) {
         graphUpserter.changeNodeState(currentNode, 'ERROR');
       }
-      notifyError($q, errorMsgExtractor(error));
+      notifyError($q, errorMsgExtractor(error), error);
     }
   });
 });

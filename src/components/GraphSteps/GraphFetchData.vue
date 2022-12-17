@@ -38,7 +38,7 @@ onMounted(() => {
       ); //TODO store au moment de cliquer sur le bouton pour garder les positions des noeuds
       emit('allowNextStep');
     } catch (error) {
-      notifyError($q, errorMsgExtractor(error));
+      notifyError($q, errorMsgExtractor(error), error);
     }
   });
 });
