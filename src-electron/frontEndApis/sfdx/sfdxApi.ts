@@ -37,16 +37,16 @@ const sfdx = {
     };
     try {
       connectionFromOrg = await startOrgConnexion(userNames.fromUsername);
+      output.fromSandbox.successfulConnection = true;
     } catch (error) {
       output.fromSandbox.errorMsg = errorMsg(error);
     }
-    output.fromSandbox.successfulConnection = true;
     try {
       connectionToOrg = await startOrgConnexion(userNames.toUsername);
+      output.toSandbox.successfulConnection = true;
     } catch (error) {
       output.toSandbox.errorMsg = errorMsg(error);
     }
-    output.toSandbox.successfulConnection = true;
     return output;
   },
   queryWithAllCreatableFields: async function (
