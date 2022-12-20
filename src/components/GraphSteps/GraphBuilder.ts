@@ -3,8 +3,10 @@ import { SfRecord } from 'app/src-electron/frontEndApis/sfdx/sfdxUtils';
 import { Core } from 'cytoscape';
 import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { LookupMetadata } from 'src/models/types';
+import ProcessStopper from './ProcessStopper';
 
 export class GraphBuilder {
+  public processStopper = new ProcessStopper();
   async build(initRecords: SfRecord[], graph: Core<NodeData>) {
     /**
      * @description actually it's edges to nodes that aren't visited
@@ -25,6 +27,7 @@ export class GraphBuilder {
       // compared to the number of SOQL that will be done anyway
     }
     while (edgesNotVisited.length != 0) {
+      this.processStopper.abortIfNeeded();
       const lookupEdge = edgesNotVisited.shift();
       if (!lookupEdge) {
         throw Error('Error when de-queueing edgesNotVisited.');

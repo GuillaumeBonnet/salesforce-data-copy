@@ -8,7 +8,7 @@
 }
 </style>
 <script lang="ts" setup>
-import { nextTick, onMounted, reactive, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
 import { GraphBuilder } from './GraphBuilder';
@@ -28,10 +28,11 @@ const graphUi = ref<InstanceType<typeof GraphUi> | null>(null);
 
 const $q = useQuasar();
 const graph = getGraph();
+const graphBuilder = new GraphBuilder();
 onMounted(() => {
   nextTick(async () => {
     try {
-      await new GraphBuilder().build(props.initRecords, graph);
+      await graphBuilder.build(props.initRecords, graph);
       graphUi.value?.resetNodePosition();
       await window.electronApi.persistentStore.setGraphBeforeUpsertion(
         graph.elements().jsons() as any
@@ -41,5 +42,8 @@ onMounted(() => {
       notifyError($q, errorMsgExtractor(error), error);
     }
   });
+});
+onUnmounted(() => {
+  graphBuilder.processStopper.abort();
 });
 </script>

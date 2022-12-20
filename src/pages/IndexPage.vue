@@ -121,6 +121,12 @@ const goToGraphBuildingStep = async () => {
   if (initializationStepCmp.value) {
     const initCond = await initializationStepCmp.value.getInitCond();
 
+    while (initRecords.length > 0) {
+      /* we do that to keep the reference tracked by vue
+       * the array is filled if we pressed the back button once
+       */
+      initRecords.pop();
+    }
     initRecords.push(
       ...(await window.electronApi.sfdx.queryWithAllCreatableFields(
         'FROM',

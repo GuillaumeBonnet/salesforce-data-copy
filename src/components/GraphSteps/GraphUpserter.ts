@@ -8,12 +8,14 @@ import { DTfieldName } from 'app/src-electron/frontEndApis/sfdx/PermissionSetHan
 import { notifyError } from '../vueUtils';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { SfRecord } from 'src/models/types';
+import ProcessStopper from './ProcessStopper';
 
 export default class GraphUpserter {
   constructor(
     private sourceGraph: cytoscape.Core<NodeData>,
     private $q: QVueGlobals
   ) {}
+  public processStopper = new ProcessStopper();
   mapSObjectsWithDataTransField: { [key: string]: boolean } = {};
   ongoingCyclicPathUpserted: string[] = [];
   private _currentNodeId = '';
@@ -52,6 +54,7 @@ export default class GraphUpserter {
   }
 
   async upsertNodeToTarget(currentNode: NodeSingular<NodeData>) {
+    this.processStopper.abortIfNeeded();
     const currentNodeData = currentNode.data().nodeData;
     this.currentNodeId = currentNode.id();
     if (

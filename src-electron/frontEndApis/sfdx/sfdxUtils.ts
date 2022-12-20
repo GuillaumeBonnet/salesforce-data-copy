@@ -79,7 +79,7 @@ const queryWithAllCreatableFields = async (
     sObjectName = 'Group';
   }
   const creatableFields = await findAllCreatableFields(connection, sObjectName);
-  if (!whereClause) {
+  if (!whereClause || !whereClause?.trim()) {
     whereClause = '';
   } else if (!whereClause.trim().toUpperCase().startsWith('WHERE')) {
     whereClause = 'WHERE ' + whereClause;

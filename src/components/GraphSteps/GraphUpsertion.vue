@@ -9,7 +9,7 @@ import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import cytoscape from 'cytoscape';
 import { useQuasar } from 'quasar';
 import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import { nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { notifyError } from '../vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
 import { mapStateToClass } from './CytoscapeConf';
@@ -18,9 +18,9 @@ import GraphUpserter from './GraphUpserter';
 const graph = getGraph();
 const $q = useQuasar();
 const graphUi = ref<InstanceType<typeof GraphUi> | null>(null);
+const graphUpserter = new GraphUpserter(graph, $q);
 onMounted(async () => {
   nextTick(async () => {
-    const graphUpserter = new GraphUpserter(graph, $q);
     try {
       const graphElements =
         await window.electronApi.persistentStore.getGraphBeforeUpsertion();
@@ -68,5 +68,8 @@ onMounted(async () => {
       notifyError($q, errorMsgExtractor(error), error);
     }
   });
+});
+onUnmounted(() => {
+  graphUpserter.processStopper.abort();
 });
 </script>
