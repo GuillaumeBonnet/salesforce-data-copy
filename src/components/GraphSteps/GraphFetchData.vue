@@ -18,6 +18,7 @@ import { SfRecord } from 'src/models/types';
 import { nodeStatesClasses, getGraph } from './InitCytoscapeInstance';
 import GraphPanelContent from './GraphPanelContent.vue';
 import GraphUi from './GraphUi.vue';
+import { Log } from './Log';
 
 const props = defineProps<{ initRecords: SfRecord[] }>();
 const emit = defineEmits<{
@@ -38,6 +39,22 @@ onMounted(() => {
         graph.elements().jsons() as any
       ); //TODO store au moment de cliquer sur le bouton pour garder les positions des noeuds
       emit('allowNextStep');
+      Log.stepInGreen('Fetching data successful');
+      $q.notify({
+        type: 'positive',
+        message: 'All records fetched successfully !',
+        multiLine: true,
+        position: 'center',
+        actions: [
+          {
+            label: 'Dismiss',
+            color: 'white',
+            handler: () => {
+              /* ... */
+            },
+          },
+        ],
+      });
     } catch (error) {
       notifyError($q, errorMsgExtractor(error), error);
     }

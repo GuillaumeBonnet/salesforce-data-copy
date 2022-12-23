@@ -83,12 +83,12 @@ export class GraphBuilder {
             label: lookupEdge.lookupName,
           },
         });
-        graph
-          .layout({
-            name: 'dagre',
-          })
-          .run();
       }
+      graph
+        .layout({
+          name: 'dagre',
+        })
+        .run();
 
       if (
         lookupEdge.targetObjectName == 'User' ||
