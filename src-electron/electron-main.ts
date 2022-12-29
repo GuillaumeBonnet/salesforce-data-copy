@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import path from 'path';
 import os from 'os';
 import { errorMsg } from './utils';
+
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
 
@@ -64,6 +65,21 @@ type ElectronApi_PreloadKeyChecker = {
     [key2 in keyof ElectronApi[key]]: '';
   };
 };
+app.on('web-contents-created', (event, contents) => {
+  contents.on('will-navigate', (event, navigationUrl) => {
+    event.preventDefault();
+    // https://www.electronjs.org/docs/latest/tutorial/security#5-handle-session-permission-requests-from-remote-content
+    //If your app has no need to navigate or only needs to navigate to known pages,
+    // it is a good idea to limit navigation outright to that known scope, disallowing
+    // any other kinds of navigation.
+  });
+  contents.setWindowOpenHandler(({ url }) => {
+    // https://www.electronjs.org/docs/latest/tutorial/security#14-disable-or-limit-creation-of-new-windows
+    // If you have a known set of windows, it's a good idea to
+    // limit the creation of additional windows in your app.
+    return { action: 'deny' };
+  });
+});
 
 app.whenReady().then(() => {
   createWindow();
