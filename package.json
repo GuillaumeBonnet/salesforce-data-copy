@@ -10,7 +10,7 @@
     "postinstall": "patch-package",
     "dev": "quasar dev -m electron",
     "build": "quasar build -m electron",
-    "build:pwa": "quasar build -m pwa",
+    "build-dev": "quasar build -d -m electron",
     "format": "prettier --write \"**/*.{js,ts,vue,css,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
   },
