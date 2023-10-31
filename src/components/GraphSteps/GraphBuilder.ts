@@ -4,6 +4,7 @@ import { Core } from 'cytoscape';
 import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { LookupMetadata } from 'src/models/types';
 import ProcessStopper from './ProcessStopper';
+import { MAIN_LAYOUT } from './CytoscapeConf';
 
 export class GraphBuilder {
   public processStopper = new ProcessStopper();
@@ -86,7 +87,7 @@ export class GraphBuilder {
       }
       graph
         .layout({
-          name: 'dagre',
+          name: MAIN_LAYOUT.name,
         })
         .run();
 

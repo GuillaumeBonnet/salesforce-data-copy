@@ -4,20 +4,32 @@ import {
   CYTOSCAPE_STYLESHEETS,
   LAYOUT_OPTIONS_DAGRE,
   mapStateToClass,
+  LAYOUT_OPTIONS_COLA,
+  LAYOUT_OPTIONS_COSE_BILKENT,
+  MAIN_LAYOUT,
 } from './CytoscapeConf';
 
 import dagre from 'cytoscape-dagre';
+import cola from 'cytoscape-cola';
+import coseBilkent from 'cytoscape-cose-bilkent';
+import fcose from 'cytoscape-fcose';
+import elk from 'cytoscape-elk';
+import spread from 'cytoscape-spread ';
 
 const getGraph = (elements?: CytoscapeOptions<NodeData>['elements']) => {
   if (!elements) {
     elements = { nodes: [], edges: [] };
   }
   cytoscape.use(dagre);
+  // cytoscape.use(cola);
+  // cytoscape.use(coseBilkent);
+  // cytoscape.use(fcose);
+  // cytoscape.use(spread);
   const cy = cytoscape<NodeData>({
     elements,
     wheelSensitivity: 0.7, //TODO test with other mouses
     style: CYTOSCAPE_STYLESHEETS,
-    layout: LAYOUT_OPTIONS_DAGRE,
+    layout: MAIN_LAYOUT,
   });
   cy.on('add', 'node', (event) => {
     if (!isCytoNode(event.target)) {
