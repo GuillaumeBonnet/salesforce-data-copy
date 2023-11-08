@@ -96,11 +96,11 @@ const LAYOUT_OPTIONS_FCOSE = {
   /* incremental layout options */
 
   // Node repulsion (non overlapping) multiplier
-  nodeRepulsion: (node) => 4500,
+  nodeRepulsion: (node: any) => 4500,
   // Ideal edge (non nested) length
-  idealEdgeLength: (edge) => 50,
+  idealEdgeLength: (edge: any) => 50,
   // Divisor to compute edge forces
-  edgeElasticity: (edge) => 0.45,
+  edgeElasticity: (edge: any) => 0.45,
   // Nesting factor (multiplier) to compute ideal edge length for nested edges
   nestingFactor: 0.1,
   // Maximum number of iterations to perform - this is a suggested value and might be adjusted by the algorithm as required
@@ -161,7 +161,7 @@ const LAYOUT_OPTIONS_COLA = {
   avoidOverlap: true, // if true, prevents overlap of node bounding boxes
   handleDisconnected: true, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
-  nodeSpacing: function (node) {
+  nodeSpacing: function (node: any) {
     return 10;
   }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
@@ -191,10 +191,10 @@ const LAYOUT_OPTIONS_DAGRE = {
   acyclicer: undefined, // If set to 'greedy', uses a greedy heuristic for finding a feedback arc set for a graph.
   // A feedback arc set is a set of edges that can be removed to make a graph acyclic.
   ranker: undefined, // Type of algorithm to assign a rank to each node in the input graph. Possible values: 'network-simplex', 'tight-tree' or 'longest-path'
-  minLen: function (edge) {
+  minLen: function (edge: any) {
     return 1;
   }, // number of ranks to keep between the source and target of the edge
-  edgeWeight: function (edge) {
+  edgeWeight: function (edge: any) {
     return 1;
   }, // higher weight edges are generally made shorter and straighter than lower weight edges
 
@@ -204,13 +204,13 @@ const LAYOUT_OPTIONS_DAGRE = {
   spacingFactor: undefined, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
   nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
   animate: false, // whether to transition the node positions
-  animateFilter: function (node, i) {
+  animateFilter: function (node: any, i: any) {
     return true;
   }, // whether to animate specific nodes when animation is on; non-animated nodes immediately go to their final positions
   animationDuration: 500, // duration of animation in ms if enabled
   animationEasing: undefined, // easing of animation if enabled
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-  transform: function (node, pos) {
+  transform: function (node: any, pos: any) {
     return pos;
   }, // a function that applies a transform to the final node position
   // ready: function () {}, // on layoutready

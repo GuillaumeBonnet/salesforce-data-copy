@@ -92,10 +92,7 @@ const sfdx = {
       queryResult_RecordAlreadyExists.records.length == 0
     ) {
       throw Error(
-        `User ${userName} => ${userNameProd} not found in target Org.`,
-        {
-          cause: { code: 'USER_NOT_FOUND' },
-        }
+        `USER_NOT_FOUND: User ${userName} => ${userNameProd} not found in target Org.`
       );
     }
     const ret = queryResult_RecordAlreadyExists.records[0];

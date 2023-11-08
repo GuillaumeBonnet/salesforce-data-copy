@@ -242,7 +242,7 @@ export default class GraphUpserter {
     }
 
     currentNodeData.targetData[DTfieldName] = currentNodeData.sourceData.Id;
-    delete currentNodeData.targetData.Id;
+    currentNodeData.targetData.Id = '';
     Log.stepInGreen('Upserting an Object', currentNodeType);
     let result: UpsertResult | SaveResult;
     try {

@@ -1,4 +1,4 @@
-import { SfRecord } from 'app/src-electron/frontEndApis/sfdx/sfdxUtils';
+import { SfRecord } from 'src/models/types';
 import cytoscape from 'cytoscape';
 
 class NodeDataClass {
@@ -73,4 +73,4 @@ function isCytoEdge(edge: any): edge is cytoscape.EdgeSingular<NodeData> {
   );
 }
 export { isCytoNode, isCytoEdge, NodeDataClass };
-export type { NodeData };
+export type { NodeData, EdgeNotVisited };

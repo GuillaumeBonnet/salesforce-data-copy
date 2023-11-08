@@ -1,5 +1,5 @@
 import { Connection } from '@salesforce/core';
-import { Log } from 'src/components/GraphSteps/Log';
+import { Log } from '../../../src/components/GraphSteps/Log';
 import { PermissionSet, CustomField } from 'jsforce/api/metadata';
 
 const permissionSetDefinition = {

@@ -14,7 +14,7 @@ import cola from 'cytoscape-cola';
 import coseBilkent from 'cytoscape-cose-bilkent';
 import fcose from 'cytoscape-fcose';
 import elk from 'cytoscape-elk';
-import spread from 'cytoscape-spread ';
+import spread from 'cytoscape-spread';
 
 const getGraph = (elements?: CytoscapeOptions<NodeData>['elements']) => {
   if (!elements) {

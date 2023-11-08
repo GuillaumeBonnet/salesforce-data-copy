@@ -1,6 +1,6 @@
 import { AuthInfo, Connection } from '@salesforce/core';
 import { Record } from 'jsforce';
-import { Log } from 'src/components/GraphSteps/Log';
+import { Log } from '../../../src/components/GraphSteps/Log';
 import {
   SfRecord,
   CacheLookupMetadata,
@@ -11,17 +11,32 @@ const findAllCreatableFields = async (
   connection: Connection,
   sObjectName: string
 ) => {
-  const describeResult = await connection.describe(sObjectName);
-  return describeResult.fields
-    .filter(
-      (field) =>
-        field.createable &&
-        !field.name.endsWith('__pc') && // person account readonly, those fields should be set on the related contact
-        field.name.split('__').length <= 2 /*=> managed package fields*/
-    )
-    .map((elem) => {
-      return elem.name;
-    });
+  console.log('gboDebug: before describe');
+  process.on('uncaughtException', (err) => {
+    console.log(`gbo Uncaught Exception: ${err.message}`);
+    process.exit(1);
+  });
+  process.on('message', function (err: any) {
+    console.log('gboDebug process.message');
+  });
+  try {
+    const describeResult = await connection.describe(sObjectName);
+    console.log('gboDebug:[describeResult]', describeResult);
+    return describeResult.fields
+      .filter(
+        (field) =>
+          field.createable &&
+          !field.name.endsWith('__pc') && // person account readonly, those fields should be set on the related contact
+          field.name.split('__').length <= 2 /*=> managed package fields*/
+      )
+      .map((elem) => {
+        return elem.name;
+      });
+  } catch (err) {
+    // console.log('gboDebug err', err.message);
+    console.log('gboDebug err', err.errorCode); //ERROR_HTTP_420
+    return ['A'];
+  }
 };
 
 const startOrgConnexion = async (username: string) => {
@@ -32,9 +47,20 @@ const startOrgConnexion = async (username: string) => {
   if (!authorization) {
     throw new Error('Authorization not found.');
   }
-  return Connection.create({
+
+  const connection = await Connection.create({
     authInfo: await AuthInfo.create(authorization),
   });
+  try {
+    await connection.identity();
+  } catch (err) {
+    if (err.errorCode == 'ERROR_HTTP_420') {
+      throw new Error(
+        'ERROR_HTTP_420 connection error. check connection through sfdx.'
+      );
+    }
+  }
+  return connection;
 };
 
 //used as a cache the const will be the same at each call of lookupsMetadataOfSobject.
@@ -79,6 +105,7 @@ const queryWithAllCreatableFields = async (
     sObjectName = 'Group';
   }
   const creatableFields = await findAllCreatableFields(connection, sObjectName);
+  console.log('gboDebug:[creatableFields]', creatableFields);
   if (!whereClause || !whereClause?.trim()) {
     whereClause = '';
   } else if (!whereClause.trim().toUpperCase().startsWith('WHERE')) {

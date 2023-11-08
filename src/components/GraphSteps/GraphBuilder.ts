@@ -1,5 +1,5 @@
 import { Log } from './Log';
-import { SfRecord } from 'app/src-electron/frontEndApis/sfdx/sfdxUtils';
+import { SfRecord } from 'src/models/types';
 import { Core } from 'cytoscape';
 import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { LookupMetadata } from 'src/models/types';
