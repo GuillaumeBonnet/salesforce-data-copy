@@ -103,7 +103,7 @@ import InitializationStep from 'src/components/InitializationStep.vue';
 import GraphFetchData from 'src/components/GraphSteps/GraphFetchData.vue';
 import { QStepper, useQuasar } from 'quasar';
 import { Record } from 'jsforce';
-import { notifyError } from 'src/components/vueUtils';
+import { notifyError, ifErrorNotif } from 'src/components/vueUtils.ts';
 import { SfRecord } from 'src/models/types';
 import GraphUpsertion from 'src/components/GraphSteps/GraphUpsertion.vue';
 const step = ref(1);
@@ -117,29 +117,31 @@ const initializationStepCmp = ref<InstanceType<
 const initRecords: SfRecord[] = [];
 const $q = useQuasar();
 
-const goToGraphBuildingStep = async () => {
-  if (initializationStepCmp.value) {
-    const initCond = await initializationStepCmp.value.getInitCond();
+const goToGraphBuildingStep = () => {
+  ifErrorNotif($q, async () => {
+    if (initializationStepCmp.value) {
+      const initCond = await initializationStepCmp.value.getInitCond();
 
-    while (initRecords.length > 0) {
-      /* we do that to keep the reference tracked by vue
-       * the array is filled if we pressed the back button once
-       */
-      initRecords.pop();
+      while (initRecords.length > 0) {
+        /* we do that to keep the reference tracked by vue
+         * the array is filled if we pressed the back button once
+         */
+        initRecords.pop();
+      }
+      initRecords.push(
+        ...(await window.electronApi.sfdx.queryWithAllCreatableFields(
+          'FROM',
+          initCond.queryBits.sObjectName,
+          initCond.queryBits.whereClause
+        ))
+      );
+      if (initRecords.length == 0) {
+        notifyError($q, 'No initial records found.\nChange the initial query.');
+      } else {
+        stepper.value?.next();
+      }
     }
-    initRecords.push(
-      ...(await window.electronApi.sfdx.queryWithAllCreatableFields(
-        'FROM',
-        initCond.queryBits.sObjectName,
-        initCond.queryBits.whereClause
-      ))
-    );
-    if (initRecords.length == 0) {
-      notifyError($q, 'No initial records found.\nChange the initial query.');
-    } else {
-      stepper.value?.next();
-    }
-  }
+  });
 };
 
 const goToUpsertStep = async () => {

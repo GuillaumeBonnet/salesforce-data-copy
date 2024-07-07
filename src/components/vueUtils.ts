@@ -1,4 +1,6 @@
+import { Callback } from '@salesforce/core/lib/status/types';
 import { QVueGlobals } from 'quasar';
+import { errorMsg } from '../../src-electron/utils';
 
 const notifyError = ($q: QVueGlobals, errorMsg: string, error?: unknown) => {
   console.error(errorMsg);
@@ -22,4 +24,12 @@ const notifyError = ($q: QVueGlobals, errorMsg: string, error?: unknown) => {
   });
 };
 
-export { notifyError };
+const ifErrorNotif = async ($q: QVueGlobals, callback: Callback) => {
+  try {
+    await callback();
+  } catch (err) {
+    notifyError($q, errorMsg(err), err);
+  }
+};
+
+export { notifyError, ifErrorNotif };
