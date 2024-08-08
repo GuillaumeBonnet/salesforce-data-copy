@@ -133,6 +133,8 @@ const toSandbox = reactive({
 
 watch(
   () => currentInitCond.fromUsername,
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (value, oldValue) => {
     currentInitCond.toUsername = '';
     toSandbox.options = fromSandbox.options.filter(
@@ -145,6 +147,7 @@ watch(
 
 watch(
   () => currentInitCond.toUsername,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (value, oldValue) => {
     toSandbox.errorMsg = '';
     toSandbox.successfulConnection = false;

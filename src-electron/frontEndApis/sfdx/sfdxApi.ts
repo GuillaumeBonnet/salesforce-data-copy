@@ -1,4 +1,3 @@
-import { errorMsg, isSfRecord } from '../../utils';
 import { AuthInfo, Connection } from '@salesforce/core';
 import {
   lookupsMetadataOfSobject,
@@ -6,7 +5,8 @@ import {
   startOrgConnexion,
 } from './sfdxUtils';
 import { DTfieldName, PermissionSetHandler } from './PermissionSetHandler';
-import { SfRecord } from 'src/models/types';
+import { SfRecord } from '../../../src/models/types';
+import { errorMsg, isSfRecord } from '../../utils';
 
 let connectionFromOrg: Connection;
 let connectionToOrg: Connection;
@@ -15,9 +15,11 @@ let permissionSetHandler: PermissionSetHandler;
 const sfdx = {
   getAliases: async function getSfdxAuthAliases() {
     return (await AuthInfo.listAllAuthorizations()).map((auth) => {
+      console.log('gboDebug:[auth]', auth);
       return {
         username: auth.username,
         alias: auth.aliases?.[0] || 'No Alias',
+        isExpired: auth.isExpired,
       };
     });
   },

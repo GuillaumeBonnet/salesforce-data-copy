@@ -6,13 +6,11 @@
 <script lang="ts" setup>
 import GraphUi from './GraphUi.vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
-import cytoscape from 'cytoscape';
 import { useQuasar } from 'quasar';
-import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { notifyError } from '../vueUtils';
+import { isCytoNode, NodeDataClass } from 'src/models/GraphTypes';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { notifyError } from 'src/components/vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
-import { mapStateToClass } from './CytoscapeConf';
 import GraphUpserter from './GraphUpserter';
 
 const graph = getGraph();

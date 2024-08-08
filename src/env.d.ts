@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { ElectronApi } from 'app/src-electron/electron-main';
+import { ElectronApi } from 'src-electron/electron-main';
 
 declare global {
   interface Window {

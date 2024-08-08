@@ -1,8 +1,7 @@
 import { Log } from './Log';
-import { SfRecord } from 'src/models/types';
 import { Core } from 'cytoscape';
 import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import { LookupMetadata } from 'src/models/types';
+import { LookupMetadata, SfRecord } from 'src/models/types';
 import ProcessStopper from './ProcessStopper';
 import { MAIN_LAYOUT } from './CytoscapeConf';
 

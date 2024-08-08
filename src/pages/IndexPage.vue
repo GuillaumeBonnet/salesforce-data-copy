@@ -11,10 +11,10 @@
         <InitializationStep
           ref="initializationStepCmp"
           @is-next-step-disabled="
-            (value) => (graphBuildingStepDisabled = value)
+            (value: boolean) => (graphBuildingStepDisabled = value)
           "
           @is-init-cond-same-as-previous="
-            (value) => (isInitCondSameAsPrevious = value)
+            (value: boolean) => (isInitCondSameAsPrevious = value)
           "
         ></InitializationStep>
       </q-step>
@@ -102,8 +102,7 @@ import { ref } from 'vue';
 import InitializationStep from 'src/components/InitializationStep.vue';
 import GraphFetchData from 'src/components/GraphSteps/GraphFetchData.vue';
 import { QStepper, useQuasar } from 'quasar';
-import { Record } from 'jsforce';
-import { notifyError, ifErrorNotif } from 'src/components/vueUtils.ts';
+import { notifyError, ifErrorNotif } from 'src/components/vueUtils';
 import { SfRecord } from 'src/models/types';
 import GraphUpsertion from 'src/components/GraphSteps/GraphUpsertion.vue';
 const step = ref(1);

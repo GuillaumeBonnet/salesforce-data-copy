@@ -8,17 +8,18 @@
 }
 </style>
 <script lang="ts" setup>
-import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { SfRecord } from 'src/models/types';
+import GraphUi from './GraphUi.vue';
+import { ref } from 'vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
+import { getGraph } from './InitCytoscapeInstance';
 import { GraphBuilder } from './GraphBuilder';
-import { notifyError } from '../vueUtils';
-import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import { SfRecord } from 'src/models/types';
-import { nodeStatesClasses, getGraph } from './InitCytoscapeInstance';
-import GraphPanelContent from './GraphPanelContent.vue';
-import GraphUi from './GraphUi.vue';
+import { onMounted } from 'vue';
+import { nextTick } from 'vue';
 import { Log } from './Log';
+import { onUnmounted } from 'vue';
+import { notifyError } from 'src/components/vueUtils';
 
 const props = defineProps<{ initRecords: SfRecord[] }>();
 const emit = defineEmits<{

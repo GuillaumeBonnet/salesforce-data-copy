@@ -64,16 +64,16 @@
     top: 48px
 </style>
 <script lang="ts" setup>
-import { ComponentPropsOptions, computed, ref } from 'vue';
-import { NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import { GlobalComponentConstructor, QTableProps, QTableSlots } from 'quasar';
+import { computed } from 'vue';
+import { NodeDataClass } from 'src/models/GraphTypes';
+import { QTableProps } from 'quasar';
 
 const props = defineProps<{ nodeSelected: NodeDataClass }>();
 const emit = defineEmits<{
   (e: 'closePanel'): void;
 }>();
 
-const columns: QTableProps['columns'][] = [
+const columns: NonNullable<QTableProps['columns']> = [
   {
     name: 'field',
     required: true,

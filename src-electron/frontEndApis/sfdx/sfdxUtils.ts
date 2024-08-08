@@ -5,7 +5,7 @@ import {
   SfRecord,
   CacheLookupMetadata,
   LookupMetadata,
-} from 'src/models/types';
+} from '../../../src/models/types';
 
 const findAllCreatableFields = async (
   connection: Connection,
@@ -16,8 +16,8 @@ const findAllCreatableFields = async (
     console.log(`gbo Uncaught Exception: ${err.message}`);
     process.exit(1);
   });
-  process.on('message', function (err: any) {
-    console.log('gboDebug process.message');
+  process.on('message', function (message: unknown) {
+    console.log('gboDebug process.message', message);
   });
   try {
     const describeResult = await connection.describe(sObjectName);

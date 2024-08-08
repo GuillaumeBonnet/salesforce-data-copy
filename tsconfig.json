@@ -1,9 +1,12 @@
 {
   "extends": "@quasar/app-webpack/tsconfig-preset",
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./",
     "strictNullChecks": true,
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "paths": {
+      "src-electron/*": ["src-electron/*"]
+    }
   },
-  "include": ["dependenciesWithoutTypes.d.ts"]
+  "include": ["./src-electron", "./src"]
 }

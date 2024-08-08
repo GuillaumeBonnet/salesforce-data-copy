@@ -49,21 +49,14 @@
 }
 </style>
 <script lang="ts" setup>
-import { nextTick, onMounted, reactive, ref, watch, onUnmounted } from 'vue';
-import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
-import { useQuasar } from 'quasar';
-import { GraphBuilder } from './GraphBuilder';
-import { notifyError } from '../vueUtils';
+import { onMounted, reactive, ref, onUnmounted } from 'vue';
 import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import { SfRecord } from 'src/models/types';
-import { nodeStatesClasses } from './InitCytoscapeInstance';
 import GraphPanelContent from './GraphPanelContent.vue';
 
 const graphNode = ref(null);
 
 const props = defineProps<{ graph: cytoscape.Core<NodeData> }>();
 
-const $q = useQuasar();
 const panel = reactive<{ isOpened: boolean; selectedNode?: NodeDataClass }>({
   isOpened: false,
   selectedNode: undefined,

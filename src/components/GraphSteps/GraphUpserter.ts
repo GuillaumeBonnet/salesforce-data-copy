@@ -1,14 +1,12 @@
-import { Log } from './Log';
-import { isCytoEdge, isCytoNode, NodeData } from 'src/models/GraphTypes';
-import { mapStateToClass } from './CytoscapeConf';
-import { NodeCollection, NodeSingular } from 'cytoscape';
-import { UpsertResult, SaveResult } from 'jsforce';
+import { NodeSingular } from 'cytoscape';
+import { SaveResult, UpsertResult } from 'jsforce';
 import { QVueGlobals } from 'quasar';
-import { DTfieldName } from 'app/src-electron/frontEndApis/sfdx/PermissionSetHandler';
-import { notifyError } from '../vueUtils';
-import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
+import { DTfieldName } from '../../../src-electron/frontEndApis/sfdx/PermissionSetHandler';
+import { isCytoEdge, NodeData } from 'src/models/GraphTypes';
 import { SfRecord } from 'src/models/types';
+import { Log } from './Log';
 import ProcessStopper from './ProcessStopper';
+import { mapStateToClass } from './CytoscapeConf';
 
 export default class GraphUpserter {
   constructor(
