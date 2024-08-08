@@ -15,7 +15,6 @@ let permissionSetHandler: PermissionSetHandler;
 const sfdx = {
   getAliases: async function getSfdxAuthAliases() {
     return (await AuthInfo.listAllAuthorizations()).map((auth) => {
-      console.log('gboDebug:[auth]', auth);
       return {
         username: auth.username,
         alias: auth.aliases?.[0] || 'No Alias',

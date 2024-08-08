@@ -11,7 +11,6 @@ const findAllCreatableFields = async (
   connection: Connection,
   sObjectName: string
 ) => {
-  console.log('gboDebug: before describe');
   process.on('uncaughtException', (err) => {
     console.log(`gbo Uncaught Exception: ${err.message}`);
     process.exit(1);
@@ -19,24 +18,17 @@ const findAllCreatableFields = async (
   process.on('message', function (message: unknown) {
     console.log('gboDebug process.message', message);
   });
-  try {
-    const describeResult = await connection.describe(sObjectName);
-    console.log('gboDebug:[describeResult]', describeResult);
-    return describeResult.fields
-      .filter(
-        (field) =>
-          field.createable &&
-          !field.name.endsWith('__pc') && // person account readonly, those fields should be set on the related contact
-          field.name.split('__').length <= 2 /*=> managed package fields*/
-      )
-      .map((elem) => {
-        return elem.name;
-      });
-  } catch (err) {
-    // console.log('gboDebug err', err.message);
-    console.log('gboDebug err', err.errorCode); //ERROR_HTTP_420
-    return ['A'];
-  }
+  const describeResult = await connection.describe(sObjectName);
+  return describeResult.fields
+    .filter(
+      (field) =>
+        field.createable &&
+        !field.name.endsWith('__pc') && // person account readonly, those fields should be set on the related contact
+        field.name.split('__').length <= 2 /*=> managed package fields*/
+    )
+    .map((elem) => {
+      return elem.name;
+    });
 };
 
 const startOrgConnexion = async (username: string) => {
@@ -105,7 +97,6 @@ const queryWithAllCreatableFields = async (
     sObjectName = 'Group';
   }
   const creatableFields = await findAllCreatableFields(connection, sObjectName);
-  console.log('gboDebug:[creatableFields]', creatableFields);
   if (!whereClause || !whereClause?.trim()) {
     whereClause = '';
   } else if (!whereClause.trim().toUpperCase().startsWith('WHERE')) {
