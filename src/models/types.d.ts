@@ -24,6 +24,11 @@ type CacheLookupMetadata = {
   [lookupApiName: string]: LookupMetadata[];
 };
 
+type OptionSandbox = {
+  label: string;
+  value: string;
+  isExpired: boolean;
+};
 export { SalesforceApiName, PermissionSetRawData, PermissionSet };
 
-export type { SfRecord, CacheLookupMetadata, LookupMetadata };
+export type { SfRecord, CacheLookupMetadata, LookupMetadata, OptionSandbox };

@@ -18,7 +18,7 @@ const sfdx = {
       return {
         username: auth.username,
         alias: auth.aliases?.[0] || 'No Alias',
-        isExpired: auth.isExpired,
+        isExpired: auth.isExpired == 'unknown' ? false : auth.isExpired,
       };
     });
   },

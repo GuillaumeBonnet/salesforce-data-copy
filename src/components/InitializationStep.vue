@@ -61,6 +61,7 @@ import { QInput } from 'quasar';
 import { computed, nextTick, onMounted, reactive, watch } from 'vue';
 import { ref } from 'vue';
 import SelectOrganization from './SelectOrganization.vue';
+import { OptionSandbox } from 'src/models/types';
 
 let previousInitCond: Awaited<
   ReturnType<typeof window.electronApi.persistentStore.getInitialConditions>
@@ -86,6 +87,7 @@ onMounted(async function () {
   ).map((aliasAndUsername) => ({
     label: `${aliasAndUsername.alias}(${aliasAndUsername.username})`,
     value: aliasAndUsername.username,
+    isExpired: aliasAndUsername.isExpired,
   }));
   Object.assign(
     currentInitCond,
@@ -118,12 +120,12 @@ const emit = defineEmits<{
 }>();
 
 const fromSandbox = reactive({
-  options: [] as { label: string; value: string }[],
+  options: [] as OptionSandbox[],
   errorMsg: '',
   successfulConnection: false,
 });
 const toSandbox = reactive({
-  options: [] as { label: string; value: string }[],
+  options: [] as OptionSandbox[],
   errorMsg: '',
   successfulConnection: false,
   disable: computed(() => {
