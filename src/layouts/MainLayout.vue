@@ -5,9 +5,7 @@
         <q-toolbar-title class="text-center">
           Salesforce Data Copy
         </q-toolbar-title>
-
-        <div>v {{ '00' }}</div>
-        <!-- //TODO ask node for the package.json version -->
+        <div>v {{ packageInfo.version }}</div>
       </q-toolbar>
     </q-header>
     <q-page-container class="h-full">
@@ -16,4 +14,6 @@
   </q-layout>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import packageInfo from '@root/package.json';
+</script>

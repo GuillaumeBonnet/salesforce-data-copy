@@ -5,7 +5,8 @@
     "strictNullChecks": true,
     "useUnknownInCatchVariables": false,
     "paths": {
-      "src-electron/*": ["src-electron/*"]
+      "src-electron/*": ["src-electron/*"],
+      "@root/*": ["./*"]
     }
   },
   "include": ["./src-electron", "./src"]

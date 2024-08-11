@@ -11,6 +11,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const { configure } = require('quasar/wrappers');
+const path = require('path');
 
 module.exports = configure(function (ctx) {
   return {
@@ -52,6 +53,11 @@ module.exports = configure(function (ctx) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-build
     build: {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
+      extendWebpack(cfg) {
+        cfg.resolve = cfg.resolve || {};
+        cfg.resolve.alias = cfg.resolve.alias || {};
+        cfg.resolve.alias['@root'] = path.resolve(__dirname);
+      },
 
       // transpile: false,
       // publicPath: '/',
