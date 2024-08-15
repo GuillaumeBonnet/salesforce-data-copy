@@ -226,10 +226,7 @@ export default class GraphUpserter {
         .toArray()
         .find((edge) => edge.data().label == 'RecordTypeId')
         ?.target();
-      if (!matchingRecordType) {
-        throw Error('matchingRecordType not found');
-      }
-      if (matchingRecordType.data().nodeData.sourceData['IsPersonType']) {
+      if (matchingRecordType?.data()?.nodeData?.sourceData['IsPersonType']) {
         delete currentNodeData.targetData['Name'];
         // only non PersonAccount Accounts have Name as a creatable field
       }
@@ -240,7 +237,7 @@ export default class GraphUpserter {
     }
 
     currentNodeData.targetData[DTfieldName] = currentNodeData.sourceData.Id;
-    currentNodeData.targetData.Id = '';
+    delete currentNodeData.targetData.Id;
     Log.stepInGreen('Upserting an Object', currentNodeType);
     let result: UpsertResult | SaveResult;
     try {
