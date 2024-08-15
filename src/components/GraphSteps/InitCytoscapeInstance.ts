@@ -27,7 +27,6 @@ const getGraph = (elements?: CytoscapeOptions<NodeData>['elements']) => {
   // cytoscape.use(spread);
   const cy = cytoscape<NodeData>({
     elements,
-    wheelSensitivity: 0.7, //TODO test with other mouses
     style: CYTOSCAPE_STYLESHEETS,
     layout: MAIN_LAYOUT,
   });
