@@ -126,6 +126,10 @@ module.exports = configure(function (ctx) {
         'QDrawer',
         'QTable',
         'QTooltip',
+        'QStepper',
+        'QSlider',
+        'QBadge',
+        'QMenu',
       ],
       // directives: [],
 

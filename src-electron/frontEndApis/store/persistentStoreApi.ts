@@ -28,6 +28,12 @@ const persistentStoreApi = {
       graphElementsBeforeUpsert
     );
   },
+  getSpacingFactor: async () => {
+    return persistentStore.get('spacingFactor', 1.5);
+  },
+  setSpacingFactor: async (spacingFactor: PersistentStore['spacingFactor']) => {
+    return persistentStore.set('spacingFactor', spacingFactor);
+  },
 };
 
 export { persistentStoreApi };

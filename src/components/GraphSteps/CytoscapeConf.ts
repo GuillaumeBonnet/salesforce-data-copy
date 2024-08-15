@@ -223,11 +223,11 @@ const LAYOUT_OPTIONS_DAGRE = {
 const LAYOUT_OPTIONS_GRAVITY = {
   // Called on `layoutready`
   ready: function () {
-    console.log('gboDebug - ready');
+    console.log('gravity event - ready');
   },
   // Called on `layoutstop`
   stop: function () {
-    console.log('gboDebug - stop');
+    console.log('gravity event - stop');
   },
   // 'draft', 'default' or 'proof"
   // - 'draft' fast cooling rate

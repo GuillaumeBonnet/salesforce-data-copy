@@ -30,13 +30,18 @@
     <q-page-container class="flex flex-col">
       <q-page class="flex flex-col">
         <div class="relative flex-grow flex flex-col">
-          <div ref="graphNode" class="bg-gray-100 flex-grow"></div>
+          <div ref="graphHtmlNode" class="bg-gray-100 flex-grow"></div>
           <q-btn
-            class="absolute top-4 right-4"
+            class="absolute top-2 right-2"
             color="secondary"
             label="Reset nodes positions"
             @click="resetNodePosition()"
           />
+          <SettingsMenu
+            class="absolute top-2 left-2"
+            v-model:spacingFactor="spacingFactor"
+            v-model:zoomLevel="zoomLevel"
+          ></SettingsMenu>
         </div>
       </q-page>
     </q-page-container>
@@ -51,22 +56,39 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, onUnmounted } from 'vue';
 import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import GraphPanelContent from './GraphPanelContent.vue';
+import GraphPanelContent from '../GraphPanelContent.vue';
+import { watch } from 'vue';
+import { MAIN_LAYOUT } from '../CytoscapeConf';
+import { graphEmitter } from '../GraphBuilder';
+import SettingsMenu from './SettingsMenu.vue';
 
-const graphNode = ref(null);
+const props = defineProps<{
+  graph: cytoscape.Core<NodeData>;
+}>();
 
-const props = defineProps<{ graph: cytoscape.Core<NodeData> }>();
+const zoomLevel = ref(1);
+const spacingFactor = ref(1.5); //value overriden by default value of persistentStore
+
+const graphHtmlNode = ref(null);
 
 const panel = reactive<{ isOpened: boolean; selectedNode?: NodeDataClass }>({
   isOpened: false,
   selectedNode: undefined,
 });
 
-onMounted(() => {
-  if (!graphNode.value) {
-    throw Error('Node for graph not found.');
+onMounted(async () => {
+  if (!graphHtmlNode.value) {
+    throw Error('Html Node for graph not found.');
   }
-  props.graph.mount(graphNode.value);
+  props.graph.mount(graphHtmlNode.value);
+  spacingFactor.value =
+    await window.electronApi.persistentStore.getSpacingFactor();
+  graphEmitter.on('reload', () => {
+    resetNodePosition();
+  });
+  props.graph.on('zoom', function (event) {
+    zoomLevel.value = props.graph.zoom();
+  });
   props.graph.on('tap', function (event) {
     // target holds a reference to the originator
     // of the event (core or element)
@@ -115,10 +137,25 @@ onMounted(() => {
   });
 });
 
+watch(
+  spacingFactor,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (value, oldValue) => {
+    resetNodePosition();
+  }
+);
+watch(
+  zoomLevel,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (value, oldValue) => {
+    props.graph.zoom(value);
+  }
+);
 const resetNodePosition = () => {
   props.graph
     .layout({
-      name: 'dagre',
+      ...MAIN_LAYOUT,
+      spacingFactor: spacingFactor.value,
     })
     .run();
 };
@@ -132,10 +169,7 @@ const resetNodeAnimation = (node?: NodeDataClass) => {
 };
 
 onUnmounted(() => {
-  props.graph.destroy();
-});
-
-defineExpose({
-  resetNodePosition,
+  window.electronApi.persistentStore.setSpacingFactor(spacingFactor.value);
+  // destroying graph here causes internal error withing cytoscape
 });
 </script>

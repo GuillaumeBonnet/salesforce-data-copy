@@ -4,7 +4,7 @@
 
 <style></style>
 <script lang="ts" setup>
-import GraphUi from './GraphUi.vue';
+import GraphUi from './GraphUi/GraphUi.vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
 import { isCytoNode, NodeDataClass } from 'src/models/GraphTypes';
@@ -12,10 +12,10 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { notifyError } from 'src/components/vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
 import GraphUpserter from './GraphUpserter';
+import { graphEmitter } from './GraphBuilder';
 
 const graph = getGraph();
 const $q = useQuasar();
-const graphUi = ref<InstanceType<typeof GraphUi> | null>(null);
 const graphUpserter = new GraphUpserter(graph, $q);
 onMounted(async () => {
   nextTick(async () => {
@@ -36,9 +36,7 @@ onMounted(async () => {
         });
         graph.add(graphElements);
       }
-      setTimeout(() => {
-        graphUi.value?.resetNodePosition();
-      });
+      graphEmitter.emit('reload');
       await graphUpserter.init();
       $q.notify({
         type: 'positive',

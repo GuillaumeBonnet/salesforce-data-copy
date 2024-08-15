@@ -12,11 +12,11 @@ const findAllCreatableFields = async (
   sObjectName: string
 ) => {
   process.on('uncaughtException', (err) => {
-    console.log(`gbo Uncaught Exception: ${err.message}`);
+    console.error(`Uncaught Exception: ${err.message}`, err);
     process.exit(1);
   });
   process.on('message', function (message: unknown) {
-    console.log('gboDebug process.message', message);
+    console.log('process.message', message);
   });
   const describeResult = await connection.describe(sObjectName);
   return describeResult.fields

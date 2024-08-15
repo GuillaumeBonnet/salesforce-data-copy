@@ -4,8 +4,28 @@ import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
 import { LookupMetadata, SfRecord } from 'src/models/types';
 import ProcessStopper from './ProcessStopper';
 import { MAIN_LAYOUT } from './CytoscapeConf';
+import EventEmitter from 'events';
 
-export class GraphBuilder {
+interface GraphEmitterEvents {
+  reload: void;
+}
+class GraphEmitter extends EventEmitter {
+  emit<K extends keyof GraphEmitterEvents>(
+    event: K,
+    ...args: GraphEmitterEvents[K] extends void ? [] : [GraphEmitterEvents[K]]
+  ): boolean {
+    return super.emit(event, ...args);
+  }
+
+  on<K extends keyof GraphEmitterEvents>(
+    event: K,
+    listener: (arg: GraphEmitterEvents[K]) => void
+  ): this {
+    return super.on(event, listener);
+  }
+}
+const graphEmitter = new GraphEmitter();
+class GraphBuilder {
   public processStopper = new ProcessStopper();
   async build(initRecords: SfRecord[], graph: Core<NodeData>) {
     /**
@@ -84,12 +104,7 @@ export class GraphBuilder {
           },
         });
       }
-      graph
-        .layout({
-          name: MAIN_LAYOUT.name,
-        })
-        .run();
-
+      graphEmitter.emit('reload');
       if (
         lookupEdge.targetObjectName == 'User' ||
         lookupEdge.targetObjectName == 'Group' ||
@@ -133,6 +148,8 @@ export class GraphBuilder {
           `${newEdgeToVisit.lookupName}(${newEdgeToVisit.targetObjectName})`
         );
       }
+      graphEmitter.emit('reload');
     }
   }
 }
+export { graphEmitter, GraphBuilder };

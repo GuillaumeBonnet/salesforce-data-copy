@@ -9,7 +9,7 @@
 </style>
 <script lang="ts" setup>
 import { SfRecord } from 'src/models/types';
-import GraphUi from './GraphUi.vue';
+import GraphUi from './GraphUi/GraphUi.vue';
 import { ref } from 'vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
@@ -25,9 +25,6 @@ const props = defineProps<{ initRecords: SfRecord[] }>();
 const emit = defineEmits<{
   (e: 'allowNextStep'): void;
 }>();
-
-const graphUi = ref<InstanceType<typeof GraphUi> | null>(null);
-
 const $q = useQuasar();
 const graph = getGraph();
 const graphBuilder = new GraphBuilder();
@@ -35,16 +32,16 @@ onMounted(() => {
   nextTick(async () => {
     try {
       await graphBuilder.build(props.initRecords, graph);
-      graphUi.value?.resetNodePosition();
       await window.electronApi.persistentStore.setGraphBeforeUpsertion(
         graph.elements().jsons() as any
-      ); //TODO store au moment de cliquer sur le bouton pour garder les positions des noeuds
+      ); //TODO store au moment de cliquer sur le bouton(on unmount ?) pour garder les positions des noeuds
       emit('allowNextStep');
       Log.stepInGreen('Fetching data successful');
       $q.notify({
         type: 'positive',
         message: 'All records fetched successfully !',
         multiLine: true,
+        timeout: 2000,
         position: 'center',
         actions: [
           {
