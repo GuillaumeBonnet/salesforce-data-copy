@@ -27,8 +27,7 @@
 
 <script setup lang="ts">
 import { OptionSandbox } from 'src/models/types';
-import { computed, onMounted, reactive, watch } from 'vue';
-import { ref } from 'vue';
+import { computed } from 'vue';
 
 const props = withDefaults(
   defineProps<{

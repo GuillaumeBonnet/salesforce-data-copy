@@ -41,8 +41,8 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
     setInitialConditions: '',
     getGraphBeforeUpsertion: '',
     setGraphBeforeUpsertion: '',
-    getSpacingFactor: '',
-    setSpacingFactor: '',
+    getGraphUiSettings: '',
+    setGraphUiSettings: '',
   },
 };
 

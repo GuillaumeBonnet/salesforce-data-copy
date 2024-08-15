@@ -8,7 +8,7 @@ import GraphUi from './GraphUi/GraphUi.vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
 import { isCytoNode, NodeDataClass } from 'src/models/GraphTypes';
-import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted } from 'vue';
 import { notifyError } from 'src/components/vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
 import GraphUpserter from './GraphUpserter';

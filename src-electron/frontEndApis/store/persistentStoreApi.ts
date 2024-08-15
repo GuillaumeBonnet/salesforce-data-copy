@@ -28,11 +28,16 @@ const persistentStoreApi = {
       graphElementsBeforeUpsert
     );
   },
-  getSpacingFactor: async () => {
-    return persistentStore.get('spacingFactor', 1.5);
+  getGraphUiSettings: async () => {
+    return persistentStore.get('graphUiSettings', {
+      areOwnersHidden: false,
+      spacingFactor: 1.5,
+    });
   },
-  setSpacingFactor: async (spacingFactor: PersistentStore['spacingFactor']) => {
-    return persistentStore.set('spacingFactor', spacingFactor);
+  setGraphUiSettings: async (
+    graphUiSettings: PersistentStore['graphUiSettings']
+  ) => {
+    return persistentStore.set('graphUiSettings', graphUiSettings);
   },
 };
 

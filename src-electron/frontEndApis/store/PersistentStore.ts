@@ -1,4 +1,4 @@
-import { ElementDefinition, ElementsDefinition } from 'cytoscape';
+import { ElementDefinition } from 'cytoscape';
 import ElectronStore from 'electron-store';
 import { NodeData } from 'src/models/GraphTypes';
 
@@ -12,7 +12,10 @@ interface PersistentStore {
     toUsername: string;
   };
   graphElementsBeforeUpsert?: ElementDefinition<NodeData>[]; //array of elements as json
-  spacingFactor: number;
+  graphUiSettings: {
+    spacingFactor: number;
+    areOwnersHidden: boolean;
+  };
 }
 const persistentStore = new ElectronStore<PersistentStore>({
   schema: {
@@ -103,8 +106,17 @@ const persistentStore = new ElectronStore<PersistentStore>({
         required: ['data', 'position', 'group', 'removed', 'classes'],
       },
     },
-    spacingFactor: {
-      type: 'number',
+    graphUiSettings: {
+      type: 'object',
+      required: ['spacingFactor', 'areOwnersHidden'],
+      properties: {
+        spacingFactor: {
+          type: 'number',
+        },
+        areOwnersHidden: {
+          type: 'boolean',
+        },
+      },
     },
   },
   clearInvalidConfig: true,

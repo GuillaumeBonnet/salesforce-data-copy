@@ -40,6 +40,7 @@
           <SettingsMenu
             class="absolute top-2 left-2"
             v-model:spacingFactor="spacingFactor"
+            v-model:areOwnersHidden="areOwnersHidden"
             v-model:zoomLevel="zoomLevel"
           ></SettingsMenu>
         </div>
@@ -68,6 +69,7 @@ const props = defineProps<{
 
 const zoomLevel = ref(1);
 const spacingFactor = ref(1.5); //value overriden by default value of persistentStore
+const areOwnersHidden = ref(false);
 
 const graphHtmlNode = ref(null);
 
@@ -81,12 +83,14 @@ onMounted(async () => {
     throw Error('Html Node for graph not found.');
   }
   props.graph.mount(graphHtmlNode.value);
-  spacingFactor.value =
-    await window.electronApi.persistentStore.getSpacingFactor();
+  const graphUiSettings =
+    await window.electronApi.persistentStore.getGraphUiSettings();
+  spacingFactor.value = graphUiSettings.spacingFactor;
+  areOwnersHidden.value = graphUiSettings.areOwnersHidden;
   graphEmitter.on('reload', () => {
     resetNodePosition();
   });
-  props.graph.on('zoom', function (event) {
+  props.graph.on('zoom', function () {
     zoomLevel.value = props.graph.zoom();
   });
   props.graph.on('tap', function (event) {
@@ -151,6 +155,13 @@ watch(
     props.graph.zoom(value);
   }
 );
+watch(
+  areOwnersHidden,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (value, oldValue) => {
+    toggleSecondaryNodesVisibility();
+  }
+);
 const resetNodePosition = () => {
   props.graph
     .layout({
@@ -158,6 +169,9 @@ const resetNodePosition = () => {
       spacingFactor: spacingFactor.value,
     })
     .run();
+  setTimeout(() => {
+    toggleSecondaryNodesVisibility();
+  });
 };
 const resetNodeAnimation = (node?: NodeDataClass) => {
   if (node) {
@@ -168,8 +182,54 @@ const resetNodeAnimation = (node?: NodeDataClass) => {
   }
 };
 
+const toggleSecondaryNodesVisibility = () => {
+  if (areOwnersHidden.value) {
+    props.graph
+      .elements()
+      .filter((element) => {
+        if (
+          element.isNode() &&
+          element.data().label.startsWith('[RecordType]')
+        ) {
+          return true;
+        }
+        if (element.isNode() && element.data().label.startsWith('[User]')) {
+          const childrenEdges = props.graph.edges(
+            `edge[target="${element.id()}"]`
+          );
+          const hasOnlyOwnerEdges = childrenEdges.every((elem) => {
+            return elem.data().label == 'OwnerId';
+          });
+          if (hasOnlyOwnerEdges) {
+            return true;
+          }
+        }
+        if (element.isEdge() && element.data().label == 'OwnerId') {
+          // we also need to hide OwnerId edges for the Users who are
+          // pointed by UserLookups other than OwnerId edges
+          return true;
+        }
+        return false;
+      })
+      .style({
+        visibility: 'hidden',
+      });
+  } else {
+    props.graph
+      .filter((element) => {
+        return element.style('visibility') == 'hidden';
+      })
+      .style({
+        visibility: 'visible',
+      });
+  }
+};
+
 onUnmounted(() => {
-  window.electronApi.persistentStore.setSpacingFactor(spacingFactor.value);
+  window.electronApi.persistentStore.setGraphUiSettings({
+    spacingFactor: spacingFactor.value,
+    areOwnersHidden: areOwnersHidden.value,
+  });
   // destroying graph here causes internal error withing cytoscape
 });
 </script>

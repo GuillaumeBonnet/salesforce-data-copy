@@ -130,6 +130,7 @@ module.exports = configure(function (ctx) {
         'QSlider',
         'QBadge',
         'QMenu',
+        'QCheckbox',
       ],
       // directives: [],
 

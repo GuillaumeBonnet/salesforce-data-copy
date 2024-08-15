@@ -10,7 +10,6 @@
 <script lang="ts" setup>
 import { SfRecord } from 'src/models/types';
 import GraphUi from './GraphUi/GraphUi.vue';
-import { ref } from 'vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
 import { getGraph } from './InitCytoscapeInstance';
