@@ -324,8 +324,8 @@ const CYTOSCAPE_STYLESHEETS: cytoscape.Stylesheet[] = [
   {
     selector: '.' + mapStateToClass.INITIAL_RECORD,
     style: {
-      'border-width': '1px',
-      'border-color': '#0066cc',
+      'border-width': '2px',
+      'border-color': '#0099cc',
     },
   },
   {
