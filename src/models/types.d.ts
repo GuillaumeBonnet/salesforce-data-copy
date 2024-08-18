@@ -1,4 +1,5 @@
-import { Record } from 'jsforce';
+import { Fields } from '@salesforce/core';
+import { Record, DescribeSObjectResult } from 'jsforce';
 
 type SalesforceApiName = string;
 type SfRecord = Required<Record>;
@@ -20,8 +21,11 @@ type LookupMetadata = {
   sObjectsReferenced: string[];
 };
 
-type CacheLookupMetadata = {
-  [lookupApiName: string]: LookupMetadata[];
+type CacheFieldsMetadata = {
+  [SObjectName: string]: {
+    lookupFields: LookupMetadata[];
+    allFields: DescribeSObjectResult['fields'];
+  };
 };
 
 type OptionSandbox = {
@@ -31,4 +35,4 @@ type OptionSandbox = {
 };
 export { SalesforceApiName, PermissionSetRawData, PermissionSet };
 
-export type { SfRecord, CacheLookupMetadata, LookupMetadata, OptionSandbox };
+export type { SfRecord, LookupMetadata, CacheFieldsMetadata, OptionSandbox };

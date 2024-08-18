@@ -28,7 +28,7 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
     getAliases: '',
     testConnections: '',
     queryWithAllCreatableFields: '',
-    lookupsMetadataOfSobject: '',
+    fieldsMetadataOfSobject: '',
     currentUserInfo: '',
     loadPermissionSetAndAssignement: '',
     findUser: '',

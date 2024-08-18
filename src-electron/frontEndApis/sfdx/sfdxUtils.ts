@@ -3,7 +3,7 @@ import { Record } from 'jsforce';
 import { Log } from '../../../src/components/GraphSteps/Log';
 import {
   SfRecord,
-  CacheLookupMetadata,
+  CacheFieldsMetadata,
   LookupMetadata,
 } from '../../../src/models/types';
 
@@ -18,8 +18,9 @@ const findAllCreatableFields = async (
   process.on('message', function (message: unknown) {
     console.log('process.message', message);
   });
-  const describeResult = await connection.describe(sObjectName);
-  return describeResult.fields
+  const fields = (await fieldsMetadataOfSobject(sObjectName, connection))
+    .allFields;
+  return fields
     .filter(
       (field) =>
         field.createable &&
@@ -55,9 +56,9 @@ const startOrgConnexion = async (username: string) => {
   return connection;
 };
 
-//used as a cache the const will be the same at each call of lookupsMetadataOfSobject.
-const lookUpCaches: { [orgUrl: string]: CacheLookupMetadata } = {};
-const lookupsMetadataOfSobject = async (
+//used as a cache the const will be the same at each call of fieldsMetadataOfSobject.
+const lookUpCaches: { [orgUrl: string]: CacheFieldsMetadata } = {};
+const fieldsMetadataOfSobject = async (
   sObjectName: string,
   connection: Connection
 ) => {
@@ -65,27 +66,31 @@ const lookupsMetadataOfSobject = async (
   if (!lookUpCaches[url]) {
     lookUpCaches[url] = {};
   }
-  const lookupFieldsByObjectName = lookUpCaches[url];
-  if (lookupFieldsByObjectName[sObjectName]) {
-    return lookupFieldsByObjectName[sObjectName];
+  const fieldsInfoByObjectName = lookUpCaches[url];
+  if (fieldsInfoByObjectName[sObjectName]) {
+    return fieldsInfoByObjectName[sObjectName];
   }
   const describeResult = await connection.describe(sObjectName);
-  lookupFieldsByObjectName[sObjectName] = describeResult.fields
-    .filter((field) => field.type == 'reference')
-    .map((elem) => {
-      if (elem.referenceTo && elem.referenceTo.length > 1) {
-        Log.warning(`lookup ${sObjectName}.${elem.name} is polymorphic`);
-      } // TODO delete this warning soon
-      if (!elem.referenceTo) {
-        throw Error(`Error with metadata of ${sObjectName}.${elem.name}Z`);
-      }
-      const lookupMetadata: LookupMetadata = {
-        name: elem.name,
-        sObjectsReferenced: elem.referenceTo,
-      };
-      return lookupMetadata;
-    });
-  return lookupFieldsByObjectName[sObjectName];
+  fieldsInfoByObjectName[sObjectName] = {
+    allFields: describeResult.fields,
+    lookupFields: describeResult.fields
+      .filter((field) => field.type == 'reference')
+      .map((elem) => {
+        if (elem.referenceTo && elem.referenceTo.length > 1) {
+          Log.warning(`lookup ${sObjectName}.${elem.name} is polymorphic`);
+        } // TODO delete this warning soon
+        if (!elem.referenceTo) {
+          throw Error(`Error with metadata of ${sObjectName}.${elem.name}`);
+        }
+        const lookupMetadata: LookupMetadata = {
+          name: elem.name,
+          sObjectsReferenced: elem.referenceTo,
+        };
+        return lookupMetadata;
+      }),
+  };
+
+  return fieldsInfoByObjectName[sObjectName];
 };
 
 const queryWithAllCreatableFields = async (
@@ -102,16 +107,18 @@ const queryWithAllCreatableFields = async (
   } else if (!whereClause.trim().toUpperCase().startsWith('WHERE')) {
     whereClause = 'WHERE ' + whereClause;
   }
-  if (sObjectName == 'RecordType') {
+  if (
+    sObjectName == 'RecordType' &&
+    (await fieldsMetadataOfSobject('RecordType', connection)).allFields.find(
+      (field) => field.name == 'IsPersonType'
+    )
+  ) {
     creatableFields.unshift('IsPersonType');
   }
   creatableFields.unshift('Id');
-  const lookupsMetadata = await lookupsMetadataOfSobject(
-    sObjectName,
-    connection
-  );
+  const fieldsMetadata = await fieldsMetadataOfSobject(sObjectName, connection);
   for (const field of creatableFields) {
-    const matchingLookupMetadata = lookupsMetadata.find(
+    const matchingLookupMetadata = fieldsMetadata.lookupFields.find(
       (elem) => elem.name == field
     );
     const isPolymorphic =
@@ -152,16 +159,16 @@ const findCreatableUniqueField = async (
   sObjectName: string,
   connection: Connection
 ) => {
-  const firstUniqueField = (await connection.describe(sObjectName)).fields.find(
-    (field) => {
-      return (
-        field.createable &&
-        field.unique &&
-        field.type != 'reference' &&
-        field.name != 'Id'
-      );
-    }
-  );
+  const firstUniqueField = (
+    await fieldsMetadataOfSobject(sObjectName, connection)
+  ).allFields.find((field) => {
+    return (
+      field.createable &&
+      field.unique &&
+      field.type != 'reference' &&
+      field.name != 'Id'
+    );
+  });
   if (firstUniqueField) {
     return firstUniqueField.name;
   } else {
@@ -173,6 +180,6 @@ export {
   findAllCreatableFields,
   startOrgConnexion,
   queryWithAllCreatableFields,
-  lookupsMetadataOfSobject,
+  fieldsMetadataOfSobject,
   findCreatableUniqueField as findUniqueField,
 };

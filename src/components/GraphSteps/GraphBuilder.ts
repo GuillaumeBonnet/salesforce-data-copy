@@ -112,11 +112,12 @@ class GraphBuilder {
       ) {
         continue;
       }
-      const lookUpFields =
-        await window.electronApi.sfdx.lookupsMetadataOfSobject(
+      const lookUpFields = (
+        await window.electronApi.sfdx.fieldsMetadataOfSobject(
           'FROM',
           lookupEdge.targetObjectName
-        );
+        )
+      ).lookupFields;
 
       for (const lookupField of lookUpFields) {
         const lookupValue = nextRecordNode.sourceData[lookupField.name];

@@ -1,6 +1,6 @@
 import { AuthInfo, Connection } from '@salesforce/core';
 import {
-  lookupsMetadataOfSobject,
+  fieldsMetadataOfSobject,
   queryWithAllCreatableFields,
   startOrgConnexion,
 } from './sfdxUtils';
@@ -59,13 +59,13 @@ const sfdx = {
       sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
     return queryWithAllCreatableFields(connection, sObjectName, whereClause);
   },
-  lookupsMetadataOfSobject: async function (
+  fieldsMetadataOfSobject: async function (
     sandbox: 'FROM' | 'TO',
     sObjectName: string
   ) {
     const connection: Connection =
       sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
-    return lookupsMetadataOfSobject(sObjectName, connection);
+    return fieldsMetadataOfSobject(sObjectName, connection);
   },
   currentUserInfo: async function (sandbox: 'FROM' | 'TO') {
     const connection: Connection =
