@@ -17,10 +17,11 @@
         </div>
         <div class="flex justify-between">
           <div class="flex gap-1">
-            <div class="underline">Current state:</div>
+            <div class="underline">State:</div>
             <span class="">{{ nodeSelected.state }}</span>
+            <span class="w-4 h-4 rounded-full" :style="nodeStyle"></span>
+            <span v-if="nodeSelected.isInitialRecord">(Initial record)</span>
           </div>
-          <div v-if="nodeSelected.isInitialRecord">[Initial record]</div>
         </div>
         <div class="flex-grow">
           <q-table
@@ -67,9 +68,11 @@
 import { computed } from 'vue';
 import { NodeDataClass } from 'src/models/GraphTypes';
 import { QTableProps } from 'quasar';
+import { CYTOSCAPE_STYLESHEETS, mapStateToClass } from '../CytoscapeConf';
+import { StylesheetCSS } from 'cytoscape';
 
 const props = defineProps<{ nodeSelected: NodeDataClass }>();
-const emit = defineEmits<{
+defineEmits<{
   (e: 'closePanel'): void;
 }>();
 
@@ -111,5 +114,30 @@ const rows = computed(() => {
     }
   }
   return returnRows;
+});
+const mapStylesheet: { [selector: string]: StylesheetCSS['css'] } = {};
+for (const stylesheet of CYTOSCAPE_STYLESHEETS) {
+  if (!stylesheet || !('style' in stylesheet)) {
+    continue;
+  }
+  mapStylesheet[stylesheet.selector] = stylesheet.style;
+}
+const nodeStyle = computed(() => {
+  const nodeStylesheet = Object.assign({}, mapStylesheet['node']);
+  if (!nodeStylesheet) {
+    return null;
+  }
+  const currentStateStyle =
+    mapStylesheet['.' + mapStateToClass[props.nodeSelected.state]];
+  if (currentStateStyle) {
+    Object.assign(nodeStylesheet, currentStateStyle);
+  }
+  if (props.nodeSelected.isInitialRecord) {
+    const initRecordStyle = mapStylesheet['.' + mapStateToClass.INITIAL_RECORD];
+    if (initRecordStyle) {
+      Object.assign(nodeStylesheet, initRecordStyle);
+    }
+  }
+  return nodeStylesheet;
 });
 </script>

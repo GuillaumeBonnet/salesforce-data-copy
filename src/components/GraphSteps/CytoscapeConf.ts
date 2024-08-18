@@ -312,13 +312,15 @@ const CYTOSCAPE_STYLESHEETS: cytoscape.Stylesheet[] = [
     style: {
       'background-color': '#666',
       'border-width': '1px',
+      'border-color': 'black',
       label: 'data(id)',
     },
   },
   {
     selector: '.' + mapStateToClass.CURRENT_NODE,
     style: {
-      'border-width': '4px',
+      'border-width': '6px',
+      'border-color': '#42f4c5',
     },
   },
   {
@@ -350,13 +352,6 @@ const CYTOSCAPE_STYLESHEETS: cytoscape.Stylesheet[] = [
     selector: '.' + mapStateToClass.ERROR,
     style: {
       'background-color': '#d40000',
-    },
-  },
-  {
-    selector: '.current-node',
-    style: {
-      'border-width': '6px',
-      'border-color': '#42f4c5',
     },
   },
   {

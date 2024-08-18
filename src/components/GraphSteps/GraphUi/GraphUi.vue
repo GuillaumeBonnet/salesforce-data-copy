@@ -57,7 +57,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, onUnmounted } from 'vue';
 import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
-import GraphPanelContent from '../GraphPanelContent.vue';
+import GraphPanelContent from './GraphPanelContent.vue';
 import { watch } from 'vue';
 import { MAIN_LAYOUT } from '../CytoscapeConf';
 import { graphEmitter } from '../GraphBuilder';
