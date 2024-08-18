@@ -35,7 +35,7 @@
             class="absolute top-2 right-2"
             color="secondary"
             label="Reset nodes positions"
-            @click="resetNodePosition()"
+            @click="resetNodePosition(true)"
           />
           <SettingsMenu
             class="absolute top-2 left-2"
@@ -88,7 +88,7 @@ onMounted(async () => {
   spacingFactor.value = graphUiSettings.spacingFactor;
   areOwnersHidden.value = graphUiSettings.areOwnersHidden;
   graphEmitter.on('reload', () => {
-    resetNodePosition();
+    resetNodePosition(false);
   });
   props.graph.on('zoom', function () {
     zoomLevel.value = props.graph.zoom();
@@ -145,7 +145,7 @@ watch(
   spacingFactor,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (value, oldValue) => {
-    resetNodePosition();
+    resetNodePosition(false);
   }
 );
 watch(
@@ -162,11 +162,12 @@ watch(
     toggleSecondaryNodesVisibility();
   }
 );
-const resetNodePosition = () => {
+const resetNodePosition = (isFromButton: boolean) => {
   props.graph
     .layout({
       ...MAIN_LAYOUT,
       spacingFactor: spacingFactor.value,
+      zoom: isFromButton ? null : zoomLevel.value,
     })
     .run();
   setTimeout(() => {
