@@ -23,6 +23,7 @@
     <q-btn
       label="Test connections"
       @click="testConnections()"
+      :loading="isTestConOngoing"
       :disable="!bothSandboxPicked"
       class="mx-auto my-8 block"
       color="secondary"
@@ -160,11 +161,14 @@ const bothSandboxPicked = computed(() => {
   return currentInitCond.fromUsername && currentInitCond.toUsername;
 });
 
+const isTestConOngoing = ref(false);
 const testConnections = async () => {
+  isTestConOngoing.value = true;
   const result = await window.electronApi.sfdx.testConnections({
     fromUsername: currentInitCond.fromUsername,
     toUsername: currentInitCond.toUsername,
   });
+  isTestConOngoing.value = false;
   fromSandbox.errorMsg = result.fromSandbox.errorMsg;
   fromSandbox.successfulConnection = result.fromSandbox.successfulConnection;
 
