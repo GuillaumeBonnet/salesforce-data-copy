@@ -204,7 +204,11 @@ const toggleSecondaryNodesVisibility = () => {
             return true;
           }
         }
-        if (element.isEdge() && element.data().label == 'OwnerId') {
+        if (
+          element.isEdge() &&
+          (element.data().label == 'OwnerId' ||
+            element.data().label == 'RecordTypeId')
+        ) {
           // we also need to hide OwnerId edges for the Users who are
           // pointed by UserLookups other than OwnerId edges
           return true;
