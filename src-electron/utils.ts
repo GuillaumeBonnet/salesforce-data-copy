@@ -1,5 +1,5 @@
+import { Record } from '@jsforce/jsforce-node';
 import { SfRecord } from 'src/models/types';
-import { Record } from 'jsforce';
 
 const errorMsg = (error: unknown) => {
   if (typeof error == 'string') {

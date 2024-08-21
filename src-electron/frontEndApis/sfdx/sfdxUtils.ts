@@ -1,15 +1,15 @@
 import { AuthInfo, Connection } from '@salesforce/core';
-import { Record } from 'jsforce';
 import { Log } from '../../../src/components/GraphSteps/Log';
 import {
   SfRecord,
   CacheFieldsMetadata,
   LookupMetadata,
 } from '../../../src/models/types';
+import { Record } from '@jsforce/jsforce-node';
 
 const findAllCreatableFields = async (
   connection: Connection,
-  sObjectName: string
+  sObjectName: string,
 ) => {
   process.on('uncaughtException', (err) => {
     console.error(`Uncaught Exception: ${err.message}`, err);
@@ -25,7 +25,7 @@ const findAllCreatableFields = async (
       (field) =>
         field.createable &&
         !field.name.endsWith('__pc') && // person account readonly, those fields should be set on the related contact
-        field.name.split('__').length <= 2 /*=> managed package fields*/
+        field.name.split('__').length <= 2 /*=> managed package fields*/,
     )
     .map((elem) => {
       return elem.name;
@@ -33,8 +33,8 @@ const findAllCreatableFields = async (
 };
 
 const startOrgConnexion = async (username: string) => {
-  const allAuthoriaztions = await AuthInfo.listAllAuthorizations();
-  const authorization = allAuthoriaztions.find((authorization) => {
+  const allAuthorizations = await AuthInfo.listAllAuthorizations();
+  const authorization = allAuthorizations.find((authorization) => {
     return authorization.username == username;
   });
   if (!authorization) {
@@ -49,7 +49,7 @@ const startOrgConnexion = async (username: string) => {
   } catch (err) {
     if (err.errorCode == 'ERROR_HTTP_420') {
       throw new Error(
-        'ERROR_HTTP_420 connection error. check connection through sfdx.'
+        'ERROR_HTTP_420 connection error. check connection through sfdx.',
       );
     }
   }
@@ -60,7 +60,7 @@ const startOrgConnexion = async (username: string) => {
 const lookUpCaches: { [orgUrl: string]: CacheFieldsMetadata } = {};
 const fieldsMetadataOfSobject = async (
   sObjectName: string,
-  connection: Connection
+  connection: Connection,
 ) => {
   const url = connection.baseUrl();
   if (!lookUpCaches[url]) {
@@ -96,7 +96,7 @@ const fieldsMetadataOfSobject = async (
 const queryWithAllCreatableFields = async (
   connection: Connection,
   sObjectName: string,
-  whereClause?: string
+  whereClause?: string,
 ) => {
   if (sObjectName == 'Queue') {
     sObjectName = 'Group';
@@ -110,7 +110,7 @@ const queryWithAllCreatableFields = async (
   if (
     sObjectName == 'RecordType' &&
     (await fieldsMetadataOfSobject('RecordType', connection)).allFields.find(
-      (field) => field.name == 'IsPersonType'
+      (field) => field.name == 'IsPersonType',
     )
   ) {
     creatableFields.unshift('IsPersonType');
@@ -119,7 +119,7 @@ const queryWithAllCreatableFields = async (
   const fieldsMetadata = await fieldsMetadataOfSobject(sObjectName, connection);
   for (const field of creatableFields) {
     const matchingLookupMetadata = fieldsMetadata.lookupFields.find(
-      (elem) => elem.name == field
+      (elem) => elem.name == field,
     );
     const isPolymorphic =
       !!matchingLookupMetadata &&
@@ -130,17 +130,17 @@ const queryWithAllCreatableFields = async (
     }
   }
   const queryString = `SELECT ${creatableFields.join(
-    ', '
+    ', ',
   )} FROM ${sObjectName} ${whereClause}`;
 
   Log.stepInGreen(
     'query',
-    `SELECT fields... FROM ${sObjectName} ${whereClause}`
+    `SELECT fields... FROM ${sObjectName} ${whereClause}`,
   );
   const recordsData = (await connection.query(queryString)).records; //TODO check about sanitizing user inputs, mb in the generic function that bridges all the electronApi
   if (!isSfRecords(recordsData)) {
     throw Error(
-      'one of the recordData should have an Id and an attributes property'
+      'one of the recordData should have an Id and an attributes property',
     );
   }
   return recordsData;
@@ -157,7 +157,7 @@ function isSfRecord(record: Record): record is SfRecord {
 
 const findCreatableUniqueField = async (
   sObjectName: string,
-  connection: Connection
+  connection: Connection,
 ) => {
   const firstUniqueField = (
     await fieldsMetadataOfSobject(sObjectName, connection)

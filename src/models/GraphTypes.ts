@@ -18,7 +18,7 @@ class NodeDataClass {
       | 'UPSERTED'
       | 'ERROR'
       | 'SKIPPED' = 'NONE',
-    public isInitialRecord: boolean = false
+    public isInitialRecord: boolean = false,
   ) {}
 
   public get sourceId() {
@@ -33,7 +33,7 @@ class NodeDataClass {
   set targetId(value: string) {
     if (!this.targetData) {
       throw Error(
-        "Can't set targetId because targetData has not been initialized."
+        "Can't set targetId because targetData has not been initialized.",
       );
     }
     this.targetData['Id'] = value;
@@ -67,7 +67,7 @@ function isCytoNode(node: any): node is cytoscape.NodeSingular<NodeData> {
     node && node.isNode && typeof node.isNode == 'function' && node.isNode()
   );
 }
-function isCytoEdge(edge: any): edge is cytoscape.EdgeSingular<NodeData> {
+function isCytoEdge(edge: any): edge is cytoscape.EdgeSingular {
   return (
     edge && edge.isEdge && typeof edge.isEdge == 'function' && edge.isEdge()
   );

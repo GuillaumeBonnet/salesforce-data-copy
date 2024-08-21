@@ -13,7 +13,7 @@ const persistentStoreApi = {
     });
   },
   setInitialConditions: async (
-    initialConditions: PersistentStore['initialConditions']
+    initialConditions: PersistentStore['initialConditions'],
   ) => {
     return persistentStore.set('initialConditions', initialConditions);
   },
@@ -21,11 +21,11 @@ const persistentStoreApi = {
     return persistentStore.get('graphElementsBeforeUpsert');
   },
   setGraphBeforeUpsertion: async (
-    graphElementsBeforeUpsert: PersistentStore['graphElementsBeforeUpsert']
+    graphElementsBeforeUpsert: PersistentStore['graphElementsBeforeUpsert'],
   ) => {
     return persistentStore.set(
       'graphElementsBeforeUpsert',
-      graphElementsBeforeUpsert
+      graphElementsBeforeUpsert,
     );
   },
   getGraphUiSettings: async () => {
@@ -35,7 +35,7 @@ const persistentStoreApi = {
     });
   },
   setGraphUiSettings: async (
-    graphUiSettings: PersistentStore['graphUiSettings']
+    graphUiSettings: PersistentStore['graphUiSettings'],
   ) => {
     return persistentStore.set('graphUiSettings', graphUiSettings);
   },

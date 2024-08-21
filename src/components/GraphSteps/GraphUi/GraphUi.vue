@@ -62,6 +62,7 @@ import { watch } from 'vue';
 import { MAIN_LAYOUT } from '../CytoscapeConf';
 import { graphEmitter } from '../GraphBuilder';
 import SettingsMenu from './SettingsMenu.vue';
+import cytoscape from 'cytoscape';
 
 const props = defineProps<{
   graph: cytoscape.Core<NodeData>;
@@ -146,21 +147,21 @@ watch(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (value, oldValue) => {
     resetNodePosition(false);
-  }
+  },
 );
 watch(
   zoomLevel,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (value, oldValue) => {
     props.graph.zoom(value);
-  }
+  },
 );
 watch(
   areOwnersHidden,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (value, oldValue) => {
     toggleSecondaryNodesVisibility();
-  }
+  },
 );
 const resetNodePosition = (isFromButton: boolean) => {
   props.graph
@@ -196,7 +197,7 @@ const toggleSecondaryNodesVisibility = () => {
         }
         if (element.isNode() && element.data().label.startsWith('[User]')) {
           const childrenEdges = props.graph.edges(
-            `edge[target="${element.id()}"]`
+            `edge[target="${element.id()}"]`,
           );
           const hasOnlyOwnerEdges = childrenEdges.every((elem) => {
             return elem.data().label == 'OwnerId';

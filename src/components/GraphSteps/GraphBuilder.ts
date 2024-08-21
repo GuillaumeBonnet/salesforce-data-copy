@@ -19,7 +19,7 @@ class GraphEmitter extends EventEmitter {
 
   on<K extends keyof GraphEmitterEvents>(
     event: K,
-    listener: (arg: GraphEmitterEvents[K]) => void
+    listener: (arg: GraphEmitterEvents[K]) => void,
   ): this {
     return super.on(event, listener);
   }
@@ -54,7 +54,7 @@ class GraphBuilder {
       }
       if (graph.hasElementWithId(lookupEdge.lookupId)) {
         Log.info(
-          `Record ${lookupEdge.targetObjectName}:${lookupEdge.lookupId} already queried before during the run.`
+          `Record ${lookupEdge.targetObjectName}:${lookupEdge.lookupId} already queried before during the run.`,
         );
         if (lookupEdge.sourceId) {
           Log.info('Creating edge');
@@ -73,7 +73,7 @@ class GraphBuilder {
         await window.electronApi.sfdx.queryWithAllCreatableFields(
           'FROM',
           lookupEdge.targetObjectName,
-          `Id = '${lookupEdge.lookupId}'`
+          `Id = '${lookupEdge.lookupId}'`,
         )
       )[0];
 
@@ -115,7 +115,7 @@ class GraphBuilder {
       const lookUpFields = (
         await window.electronApi.sfdx.fieldsMetadataOfSobject(
           'FROM',
-          lookupEdge.targetObjectName
+          lookupEdge.targetObjectName,
         )
       ).lookupFields;
 
@@ -146,7 +146,7 @@ class GraphBuilder {
         edgesNotVisited.push(newEdgeToVisit);
         Log.stepInGreen(
           '   adding lookup to the queue: ',
-          `${newEdgeToVisit.lookupName}(${newEdgeToVisit.targetObjectName})`
+          `${newEdgeToVisit.lookupName}(${newEdgeToVisit.targetObjectName})`,
         );
       }
       graphEmitter.emit('reload');

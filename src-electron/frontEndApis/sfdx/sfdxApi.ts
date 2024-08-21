@@ -53,7 +53,7 @@ const sfdx = {
   queryWithAllCreatableFields: async function (
     sandbox: 'FROM' | 'TO',
     sObjectName: string,
-    whereClause?: string
+    whereClause?: string,
   ) {
     const connection: Connection =
       sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
@@ -61,7 +61,7 @@ const sfdx = {
   },
   fieldsMetadataOfSobject: async function (
     sandbox: 'FROM' | 'TO',
-    sObjectName: string
+    sObjectName: string,
   ) {
     const connection: Connection =
       sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
@@ -76,7 +76,7 @@ const sfdx = {
   loadPermissionSetAndAssignement: async function (currentUserIdTo: string) {
     permissionSetHandler = new PermissionSetHandler(
       connectionToOrg,
-      currentUserIdTo
+      currentUserIdTo,
     );
     await permissionSetHandler.init();
   },
@@ -93,7 +93,7 @@ const sfdx = {
       queryResult_RecordAlreadyExists.records.length == 0
     ) {
       throw Error(
-        `USER_NOT_FOUND: User ${userName} => ${userNameProd} not found in target Org.`
+        `USER_NOT_FOUND: User ${userName} => ${userNameProd} not found in target Org.`,
       );
     }
     const ret = queryResult_RecordAlreadyExists.records[0];
@@ -107,7 +107,7 @@ const sfdx = {
     return await connectionToOrg.upsert(
       record.attributes.type,
       record,
-      DTfieldName
+      DTfieldName,
     );
   },
   updateOrgTo: async function (record: SfRecord) {

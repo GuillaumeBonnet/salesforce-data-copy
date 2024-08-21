@@ -1,20 +1,7 @@
-import { Fields } from '@salesforce/core';
-import { Record, DescribeSObjectResult } from 'jsforce';
+import { DescribeSObjectResult, Record } from '@jsforce/jsforce-node';
 
 type SalesforceApiName = string;
 type SfRecord = Required<Record>;
-
-type PermissionSetRawData = {
-  fullName?: string;
-  fieldPermissions?:
-    | { [key: string]: string }
-    | Array<{ [key: string]: string }>;
-};
-
-type PermissionSet = {
-  fullName: string;
-  fieldPermissions: Array<{ [key: string]: string }>;
-};
 
 type LookupMetadata = {
   name: string;
@@ -33,6 +20,6 @@ type OptionSandbox = {
   value: string;
   isExpired: boolean;
 };
-export { SalesforceApiName, PermissionSetRawData, PermissionSet };
+export { SalesforceApiName };
 
 export type { SfRecord, LookupMetadata, CacheFieldsMetadata, OptionSandbox };

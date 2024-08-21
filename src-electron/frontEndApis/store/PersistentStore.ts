@@ -1,5 +1,5 @@
 import { ElementDefinition } from 'cytoscape';
-import ElectronStore from 'electron-store';
+import Store from 'electron-store';
 import { NodeData } from 'src/models/GraphTypes';
 
 interface PersistentStore {
@@ -17,7 +17,7 @@ interface PersistentStore {
     areOwnersHidden: boolean;
   };
 }
-const persistentStore = new ElectronStore<PersistentStore>({
+const persistentStore = new Store<PersistentStore>({
   schema: {
     initialConditions: {
       type: 'object',

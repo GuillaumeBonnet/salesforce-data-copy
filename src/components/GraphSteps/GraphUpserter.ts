@@ -1,5 +1,4 @@
-import { NodeSingular } from 'cytoscape';
-import { SaveResult, UpsertResult } from 'jsforce';
+import { Core, NodeSingular } from 'cytoscape';
 import { QVueGlobals } from 'quasar';
 import { DTfieldName } from '../../../src-electron/frontEndApis/sfdx/PermissionSetHandler';
 import { isCytoEdge, NodeData } from 'src/models/GraphTypes';
@@ -7,11 +6,12 @@ import { SfRecord } from 'src/models/types';
 import { Log } from './Log';
 import ProcessStopper from './ProcessStopper';
 import { mapStateToClass } from './CytoscapeConf';
+import { SaveResult, UpsertResult } from '@jsforce/jsforce-node';
 
 export default class GraphUpserter {
   constructor(
-    private sourceGraph: cytoscape.Core<NodeData>,
-    private $q: QVueGlobals
+    private sourceGraph: Core<NodeData>,
+    private $q: QVueGlobals,
   ) {}
   public processStopper = new ProcessStopper();
   mapSObjectsWithDataTransField: { [key: string]: boolean } = {};
@@ -37,12 +37,11 @@ export default class GraphUpserter {
   }
 
   async init() {
-    this.currentUserInfo_To = await window.electronApi.sfdx.currentUserInfo(
-      'TO'
-    );
+    this.currentUserInfo_To =
+      await window.electronApi.sfdx.currentUserInfo('TO');
     const [, initialNodes] = await Promise.all([
       window.electronApi.sfdx.loadPermissionSetAndAssignement(
-        this.currentUserInfo_To.userId
+        this.currentUserInfo_To.userId,
       ),
       this.sourceGraph.nodes(`node.${mapStateToClass.INITIAL_RECORD}`),
     ]);
@@ -83,7 +82,7 @@ export default class GraphUpserter {
     // }
     Log.stepInGreen(
       'Prepare to upsert Node',
-      `sourceRecordId:${currentNode.id()}, Object:${currentNodeData.type}`
+      `sourceRecordId:${currentNode.id()}, Object:${currentNodeData.type}`,
     );
     this.changeNodeState(currentNode, 'PREPARING_UPSERT');
 
@@ -123,7 +122,7 @@ export default class GraphUpserter {
         throw Error(
           `The parentNode ${edgeToParentRecord
             .target()
-            .id()} should have a targetId.`
+            .id()} should have a targetId.`,
         );
       }
       // switching lookup values from sourceOrgIds to targetOrgIds
@@ -148,7 +147,7 @@ export default class GraphUpserter {
       try {
         userInTargetOrg = await window.electronApi.sfdx.findUser(
           'TO',
-          currentNodeData.sourceData.Username
+          currentNodeData.sourceData.Username,
         );
       } catch (err: any) {
         const answer = await new Promise((resolve, reject) => {
@@ -177,11 +176,11 @@ export default class GraphUpserter {
         if (answer === 'Ok') {
           userInTargetOrg = await window.electronApi.sfdx.findUser(
             'TO',
-            this.currentUserInfo_To.username
+            this.currentUserInfo_To.username,
           );
         } else {
           throw Error(
-            `User "${currentNodeData.sourceData.Username}" not found in org TO.`
+            `User "${currentNodeData.sourceData.Username}" not found in org TO.`,
           );
         }
         currentNodeData.targetData.IsActive = userInTargetOrg.IsActive;
@@ -242,7 +241,7 @@ export default class GraphUpserter {
     let result: UpsertResult | SaveResult;
     try {
       result = await window.electronApi.sfdx.upsertOrgTo(
-        currentNodeData.targetData
+        currentNodeData.targetData,
       );
     } catch (error: unknown) {
       Log.info(`currentNode.sourceData: ${currentNodeData.sourceData}`);
@@ -263,7 +262,7 @@ export default class GraphUpserter {
           error.errorCode == 'FIELD_CUSTOM_VALIDATION_EXCEPTION'
         ) {
           Log.warning(
-            'You might need to activate a bypass mechanism to upsert this data.'
+            'You might need to activate a bypass mechanism to upsert this data.',
           );
         }
         if (isUpsertError(error) && error.errorCode == 'DUPLICATES_DETECTED') {
@@ -292,7 +291,7 @@ export default class GraphUpserter {
 
   changeNodeState(
     node: NodeSingular<NodeData>,
-    state: NodeData['nodeData']['state']
+    state: NodeData['nodeData']['state'],
   ) {
     node.removeClass(mapStateToClass[node.data().nodeData.state]);
     node.addClass(mapStateToClass[state]);
@@ -313,7 +312,7 @@ export default class GraphUpserter {
         .find(
           (edge) =>
             edge.data().label == 'ParentId' &&
-            edge.target().data().nodeData.type == 'Location'
+            edge.target().data().nodeData.type == 'Location',
         );
       if (!locationLookup) {
         cyclicPathError();
@@ -332,7 +331,7 @@ export default class GraphUpserter {
       }
       await this.upsertLocationAddressCycle(
         locationLookup.target(),
-        currentNode
+        currentNode,
       );
     } else if (currentNodeData.type == 'Location') {
       const addressLookup = currentNode
@@ -341,7 +340,7 @@ export default class GraphUpserter {
         .find(
           (edge) =>
             edge.data().label == 'VisitorAddressId' &&
-            edge.target().data().nodeData.type == 'Address'
+            edge.target().data().nodeData.type == 'Address',
         );
       if (!addressLookup) {
         cyclicPathError();
@@ -360,7 +359,7 @@ export default class GraphUpserter {
       }
       await this.upsertLocationAddressCycle(
         addressLookup.target(),
-        currentNode
+        currentNode,
       );
       return;
     }
@@ -369,7 +368,7 @@ export default class GraphUpserter {
 
   async upsertLocationAddressCycle(
     location: NodeSingular<NodeData>,
-    address: NodeSingular<NodeData>
+    address: NodeSingular<NodeData>,
   ) {
     Log.bigStep('Upserting a Location Address cycle');
     this.ongoingCyclicPathUpserted = [
@@ -378,7 +377,7 @@ export default class GraphUpserter {
     ];
 
     const edgeLocToAddres_asList = this.sourceGraph.edges(
-      `[source = "${location.id()}"][target = "${address.id()}"]`
+      `[source = "${location.id()}"][target = "${address.id()}"]`,
     );
     if (edgeLocToAddres_asList.size() != 1) {
       throw Error('Error parent addressNode not found');
@@ -400,28 +399,28 @@ export default class GraphUpserter {
 
   async handleDuplicateNameError(
     error: UpsertError,
-    currentNode: NodeSingular<NodeData>
+    currentNode: NodeSingular<NodeData>,
   ) {
     Log.warning(
-      'A similar records already exists in the target org with the same name.'
+      'A similar records already exists in the target org with the same name.',
     );
     const currentNodeData = currentNode.data().nodeData;
     const recordToWriteOver = (
       await window.electronApi.sfdx.queryWithAllCreatableFields(
         'TO',
         currentNode.data().nodeData.type,
-        `WHERE Name = '${currentNodeData.targetData.Name}'`
+        `WHERE Name = '${currentNodeData.targetData.Name}'`,
       )
     )[0];
     return await this.updateRecordIfConfirmed(
       recordToWriteOver.Id,
       recordToWriteOver,
-      currentNodeData.targetData
+      currentNodeData.targetData,
     );
   }
   async handleDuplicateValueError(
     error: UpsertError,
-    currentNode: NodeSingular<NodeData>
+    currentNode: NodeSingular<NodeData>,
   ) {
     Log.warning('A similar records already exists in the target org.');
     const currentNodeData = currentNode.data().nodeData;
@@ -430,21 +429,21 @@ export default class GraphUpserter {
       await window.electronApi.sfdx.queryWithAllCreatableFields(
         'TO',
         currentNodeData.type,
-        `WHERE Id = '${id}'`
+        `WHERE Id = '${id}'`,
       )
     )[0];
     return await this.updateRecordIfConfirmed(
       id,
       recordToWriteOver,
-      currentNodeData.targetData
+      currentNodeData.targetData,
     );
   }
   async handleDuplicateRuleError(
     error: any,
-    currentNode: NodeSingular<NodeData>
+    currentNode: NodeSingular<NodeData>,
   ) {
     Log.warning(
-      'A similar records already exists in the target org(duplicate rule).'
+      'A similar records already exists in the target org(duplicate rule).',
     );
     const currentNodeData = currentNode.data().nodeData;
     const id =
@@ -457,19 +456,19 @@ export default class GraphUpserter {
       await window.electronApi.sfdx.queryWithAllCreatableFields(
         'TO',
         currentNodeData.type,
-        `WHERE Id = '${id}'`
+        `WHERE Id = '${id}'`,
       )
     )[0];
     return await this.updateRecordIfConfirmed(
       id,
       recordToWriteOver,
-      currentNodeData.targetData
+      currentNodeData.targetData,
     );
   }
   async updateRecordIfConfirmed(
     idInTarget: string,
     dataToReplace: SfRecord,
-    dataThatReplaces: SfRecord
+    dataThatReplaces: SfRecord,
   ) {
     let fieldDifferences = 'FieldName: (current value) => (future value)\n';
     for (const fieldName of Object.keys(dataThatReplaces)) {
@@ -492,7 +491,7 @@ export default class GraphUpserter {
             await window.electronApi.sfdx.updateOrgTo({
               ...dataThatReplaces,
               Id: idInTarget,
-            })
+            }),
           );
         })
         .onOk(() => {

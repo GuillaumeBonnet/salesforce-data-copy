@@ -1,8 +1,6 @@
 # salesforce data copy (salesforce-data-copy)
 
-# TODO talk about patch-package pour les types de cytoscape
-
-## Install the dependencies
+# Install the dependencies
 
 ```bash
 yarn
@@ -10,34 +8,26 @@ yarn
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+## Start the app in development mode (hot-code reloading, error reporting, etc.)
 
 ```bash
 quasar dev
 ```
 
-### Lint the files
-
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-### Format the files
-
-```bash
-yarn format
-# or
-npm run format
-```
-
-### Build the app for production
+## Build the app for production
 
 ```bash
 quasar build
 ```
 
-### Customize the configuration
+# patch-package for cytoscape-patch
 
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+A package-patch is applied after installation to change the file [/node_modules/@types/cytoscape/index.d.ts](/node_modules/@types/cytoscape/index.d.ts) in order to have a better autocompletion of the custom data stored in the graph nodes.
+
+## example
+
+graphType: `cytoscape.Core<NodeData>` where `NodeData` is the generic type we expect to have when we access the data such as with `node.data(): NodeData`.
+
+# Information for updating dependencies:
+
+- chalk can't be in version 5 with typescript or a build tool

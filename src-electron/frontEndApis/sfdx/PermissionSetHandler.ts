@@ -1,6 +1,9 @@
 import { Connection } from '@salesforce/core';
 import { Log } from '../../../src/components/GraphSteps/Log';
-import { PermissionSet, CustomField } from 'jsforce/api/metadata';
+import {
+  CustomField,
+  PermissionSet,
+} from '@jsforce/jsforce-node/lib/api/metadata';
 
 const permissionSetDefinition = {
   fullName: 'DataTransfer',
@@ -12,7 +15,7 @@ const DTfieldName = 'DataTransferSourceId__c';
 class PermissionSetHandler {
   constructor(
     private connectionToOrg: Connection,
-    private currentUserId: string
+    private currentUserId: string,
   ) {}
   permissionSet!: PermissionSet;
 
@@ -30,7 +33,7 @@ class PermissionSetHandler {
     const permissionSetName = await this.permissionSetCreation();
     const permissionSetId = (
       await this.connectionToOrg.query(
-        `SELECT Id FROM PermissionSet WHERE Name = '${permissionSetName}' LIMIT 1`
+        `SELECT Id FROM PermissionSet WHERE Name = '${permissionSetName}' LIMIT 1`,
       )
     ).records[0].Id;
 
@@ -45,7 +48,7 @@ class PermissionSetHandler {
 
     const createPermSetAssResult = await this.connectionToOrg.create(
       'PermissionSetAssignment ',
-      permissionSetAssignment
+      permissionSetAssignment,
     );
     if (createPermSetAssResult.success) {
       const permissionSetInOrg = await this.retrievePermissionset();
@@ -57,7 +60,7 @@ class PermissionSetHandler {
   async permissionSetCreation() {
     const creationPermSetResult = await this.connectionToOrg.metadata.create(
       'PermissionSet',
-      permissionSetDefinition
+      permissionSetDefinition,
     );
     Log.stepInGreen('creationPermSetResult', creationPermSetResult);
     if (creationPermSetResult.success) {
@@ -70,7 +73,7 @@ class PermissionSetHandler {
   async retrievePermissionset() {
     const retrievedPermSet = await this.connectionToOrg.metadata.read(
       'PermissionSet',
-      permissionSetDefinition.fullName
+      permissionSetDefinition.fullName,
     );
     // permissionSetInOrg = {} if the permission doesn't exists
     // fieldPermissions:
@@ -91,7 +94,7 @@ class PermissionSetHandler {
 
   async addFieldToPermissionSet(SObjectType: string, fieldName: string) {
     const existingNode = this.permissionSet.fieldPermissions.find(
-      (permission) => permission.field == `${SObjectType}.${fieldName}`
+      (permission) => permission.field == `${SObjectType}.${fieldName}`,
     );
     if (
       existingNode &&
@@ -112,12 +115,12 @@ class PermissionSetHandler {
     }
     const updatePermSetResult = await this.connectionToOrg.metadata.update(
       'PermissionSet',
-      this.permissionSet
+      this.permissionSet,
     );
     if (!updatePermSetResult.success) {
       throw Error(
         'Error updating Data Transfert PermissionSet, errors:' +
-          JSON.stringify(updatePermSetResult.errors)
+          JSON.stringify(updatePermSetResult.errors),
       );
     }
     Log.stepInGreen('updatePermSetResult', updatePermSetResult);
@@ -137,19 +140,19 @@ class PermissionSetHandler {
     };
     const checkingIfFieldExists = async () => {
       Log.stepInGreen(
-        `checking if field ${fieldMetadata.fullName} exist in target org`
+        `checking if field ${fieldMetadata.fullName} exist in target org`,
       );
       const resultReadField = await this.connectionToOrg.metadata.read(
         'CustomField',
-        fieldMetadata.fullName as string
+        fieldMetadata.fullName as string,
       );
       if (!resultReadField.fullName) {
         throw Error(
-          `The CustomField ${fieldMetadata.fullName} doesn't exist in the target org. It is going to be created.`
+          `The CustomField ${fieldMetadata.fullName} doesn't exist in the target org. It is going to be created.`,
         );
       } else {
         Log.info(
-          `[checking if field ${fieldMetadata.fullName} exist in target org] => yes it does`
+          `[checking if field ${fieldMetadata.fullName} exist in target org] => yes it does`,
         );
         return;
       }
@@ -159,7 +162,7 @@ class PermissionSetHandler {
       Log.stepInGreen('creatingTheField', fieldMetadata.fullName);
       return await this.connectionToOrg.metadata.create(
         'CustomField',
-        fieldMetadata
+        fieldMetadata,
       );
     };
 
