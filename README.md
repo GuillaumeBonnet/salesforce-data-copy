@@ -20,6 +20,10 @@ quasar dev
 quasar build
 ```
 
+# build-working branch
+
+When a commit on the **main** branch has been tested for having a working build update branch **build-working** to that commit
+
 # Information for updating dependencies:
 
 - chalk can't be in version 5 with typescript or a build tool
