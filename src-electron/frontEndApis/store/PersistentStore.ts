@@ -11,7 +11,7 @@ interface PersistentStore {
     fromUsername: string;
     toUsername: string;
   };
-  graphElementsBeforeUpsert?: ElementDefinition<NodeData>[]; //array of elements as json
+  graphElementsBeforeUpsert?: ElementDefinition[]; //array of elements as json
   graphUiSettings: {
     spacingFactor: number;
     areOwnersHidden: boolean;
@@ -57,14 +57,14 @@ const persistentStore = new Store<PersistentStore>({
               id: {
                 type: 'string',
               },
-              nodeData: {
+              sdcData: {
                 type: 'object',
               },
               label: {
                 type: 'string',
               },
             },
-            required: ['id', 'nodeData', 'label'],
+            required: ['id', 'sdcData', 'label'],
           },
           position: {
             type: 'object',

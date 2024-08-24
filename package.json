@@ -7,7 +7,6 @@
   "license": "BSD-3-Clause",
   "private": true,
   "scripts": {
-    "postinstall": "patch-package",
     "dev": "quasar dev -m electron",
     "build": "quasar build -m electron",
     "build-dev": "quasar build -d -m electron",
@@ -25,13 +24,11 @@
     "electron-store": "^8.2.0",
     "pinia": "^2.2.2",
     "quasar": "^2.16.9",
-    "salesforce-data-copy": "file:",
     "vue": "^3.4.37",
     "vue-i18n": "^9.14.0",
     "vue-router": "^4.4.3"
   },
   "devDependencies": {
-    "@intlify/vite-plugin-vue-i18n": "^7.0.0",
     "@quasar/app-webpack": "^3.13.4",
     "@salesforce/ts-types": "^2.0.12",
     "@types/cytoscape": "^3.21.6",
@@ -45,7 +42,6 @@
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-vue": "^9.27.0",
-    "patch-package": "^8.0.0",
     "postcss": "^8.4.41",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.10",

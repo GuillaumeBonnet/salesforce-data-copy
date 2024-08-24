@@ -7,7 +7,7 @@
 import GraphUi from './GraphUi/GraphUi.vue';
 import { errorMsg as errorMsgExtractor } from '../../../src-electron/utils';
 import { useQuasar } from 'quasar';
-import { isCytoNode, NodeDataClass } from 'src/models/GraphTypes';
+import { isCytoNode, SdcData } from 'src/models/GraphTypes';
 import { nextTick, onMounted, onUnmounted } from 'vue';
 import { notifyError } from 'src/components/vueUtils';
 import { getGraph } from './InitCytoscapeInstance';
@@ -25,11 +25,11 @@ onMounted(async () => {
       if (graphElements) {
         graphElements.map((jsonNodeOrEdge) => {
           if (jsonNodeOrEdge.group === 'nodes') {
-            jsonNodeOrEdge.data.nodeData = new NodeDataClass(
-              jsonNodeOrEdge.data.nodeData.sourceData,
-              jsonNodeOrEdge.data.nodeData.targetData,
-              jsonNodeOrEdge.data.nodeData.state,
-              jsonNodeOrEdge.data.nodeData.isInitialRecord
+            jsonNodeOrEdge.data.sdcData = new SdcData(
+              jsonNodeOrEdge.data.sdcData.sourceData,
+              jsonNodeOrEdge.data.sdcData.targetData,
+              jsonNodeOrEdge.data.sdcData.state,
+              jsonNodeOrEdge.data.sdcData.isInitialRecord,
             );
           }
           return jsonNodeOrEdge;

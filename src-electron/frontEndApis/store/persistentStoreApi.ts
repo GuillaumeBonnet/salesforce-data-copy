@@ -1,4 +1,4 @@
-import { NodeDataClass } from 'src/models/GraphTypes';
+import { SdcData } from 'src/models/GraphTypes';
 import { PersistentStore, persistentStore } from './PersistentStore';
 
 const persistentStoreApi = {

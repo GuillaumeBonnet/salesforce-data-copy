@@ -1,7 +1,13 @@
 import { SfRecord } from 'src/models/types';
 import cytoscape from 'cytoscape';
+import { Record, SavedRecord } from '@jsforce/jsforce-node';
 
-class NodeDataClass {
+interface NodeData {
+  sdcData: SdcData; // Salesforce Data Copy
+  label: string;
+}
+
+class SdcData {
   constructor(
     public sourceData: SfRecord,
     public targetData: SfRecord = {
@@ -36,7 +42,7 @@ class NodeDataClass {
         "Can't set targetId because targetData has not been initialized.",
       );
     }
-    this.targetData['Id'] = value;
+    this.targetData.Id = value;
   }
   get type() {
     if (!this.sourceData.attributes?.type) {
@@ -50,10 +56,6 @@ class NodeDataClass {
   }
 }
 
-interface NodeData {
-  nodeData: NodeDataClass;
-  label: string;
-}
 interface EdgeNotVisited {
   sourceId?: string;
   lookupId: string;
@@ -62,7 +64,7 @@ interface EdgeNotVisited {
   isInitialRecord?: boolean;
 }
 
-function isCytoNode(node: any): node is cytoscape.NodeSingular<NodeData> {
+function isCytoNode(node: any): node is cytoscape.NodeSingular {
   return (
     node && node.isNode && typeof node.isNode == 'function' && node.isNode()
   );
@@ -72,5 +74,5 @@ function isCytoEdge(edge: any): edge is cytoscape.EdgeSingular {
     edge && edge.isEdge && typeof edge.isEdge == 'function' && edge.isEdge()
   );
 }
-export { isCytoNode, isCytoEdge, NodeDataClass };
+export { isCytoNode, isCytoEdge, SdcData };
 export type { NodeData, EdgeNotVisited };

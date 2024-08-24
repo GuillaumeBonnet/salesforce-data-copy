@@ -14,14 +14,14 @@
       :width="600"
       :mini-width="300"
       @hide="
-        resetNodeAnimation(panel.selectedNode);
-        panel.selectedNode = undefined;
+        resetNodeAnimation(panel.selectedNodeInfo);
+        panel.selectedNodeInfo = undefined;
       "
     >
       <q-scroll-area class="h-full">
         <GraphPanelContent
-          :node-selected="panel.selectedNode"
-          v-if="panel.selectedNode"
+          :node-selected="panel.selectedNodeInfo"
+          v-if="panel.selectedNodeInfo"
           @close-panel="panel.isOpened = false"
         ></GraphPanelContent>
       </q-scroll-area>
@@ -56,7 +56,7 @@
 </style>
 <script lang="ts" setup>
 import { onMounted, reactive, ref, onUnmounted } from 'vue';
-import { isCytoNode, NodeData, NodeDataClass } from 'src/models/GraphTypes';
+import { isCytoNode, NodeData } from 'src/models/GraphTypes';
 import GraphPanelContent from './GraphPanelContent.vue';
 import { watch } from 'vue';
 import { MAIN_LAYOUT } from '../CytoscapeConf';
@@ -65,7 +65,7 @@ import SettingsMenu from './SettingsMenu.vue';
 import cytoscape from 'cytoscape';
 
 const props = defineProps<{
-  graph: cytoscape.Core<NodeData>;
+  graph: cytoscape.Core;
 }>();
 
 const zoomLevel = ref(1);
@@ -74,9 +74,12 @@ const areOwnersHidden = ref(false);
 
 const graphHtmlNode = ref(null);
 
-const panel = reactive<{ isOpened: boolean; selectedNode?: NodeDataClass }>({
+const panel = reactive<{
+  isOpened: boolean;
+  selectedNodeInfo?: NodeData['sdcData'];
+}>({
   isOpened: false,
-  selectedNode: undefined,
+  selectedNodeInfo: undefined,
 });
 
 onMounted(async () => {
@@ -100,18 +103,19 @@ onMounted(async () => {
     const evtTarget = event.target;
     if (evtTarget === props.graph) {
       panel.isOpened = false;
-      resetNodeAnimation(panel.selectedNode);
-      panel.selectedNode = undefined;
+      resetNodeAnimation(panel.selectedNodeInfo);
+      panel.selectedNodeInfo = undefined;
     } else if (evtTarget) {
       if (!isCytoNode(evtTarget)) {
         return;
       }
+      const targetNodeData: NodeData = evtTarget.data();
       panel.isOpened = true;
-      resetNodeAnimation(panel.selectedNode);
-      panel.selectedNode = evtTarget.data().nodeData;
+      resetNodeAnimation(panel.selectedNodeInfo);
+      panel.selectedNodeInfo = targetNodeData.sdcData;
       const pulseIfSelected = () => {
-        panel.selectedNode;
-        if (evtTarget.id() != panel.selectedNode?.sourceId) {
+        panel.selectedNodeInfo;
+        if (evtTarget.id() != panel.selectedNodeInfo?.sourceId) {
           return;
         }
         const shiftVal = 4;
@@ -175,9 +179,9 @@ const resetNodePosition = (isFromButton: boolean) => {
     toggleSecondaryNodesVisibility();
   });
 };
-const resetNodeAnimation = (node?: NodeDataClass) => {
-  if (node) {
-    const cyNode = props.graph.$id(node.sourceId);
+const resetNodeAnimation = (nodeInfo?: NodeData['sdcData']) => {
+  if (nodeInfo) {
+    const cyNode = props.graph.$id(nodeInfo.sourceId);
     cyNode.stop();
     cyNode.style('width', 30);
     cyNode.style('height', 30);

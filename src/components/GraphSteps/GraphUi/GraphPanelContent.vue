@@ -66,12 +66,12 @@
 </style>
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { NodeDataClass } from 'src/models/GraphTypes';
+import { SdcData } from 'src/models/GraphTypes';
 import { QTableProps } from 'quasar';
 import { CYTOSCAPE_STYLESHEETS, mapStateToClass } from '../CytoscapeConf';
 import { StylesheetCSS } from 'cytoscape';
 
-const props = defineProps<{ nodeSelected: NodeDataClass }>();
+const props = defineProps<{ nodeSelected: SdcData }>();
 defineEmits<{
   (e: 'closePanel'): void;
 }>();

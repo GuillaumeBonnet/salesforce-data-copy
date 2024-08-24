@@ -1,6 +1,6 @@
 import { Log } from './Log';
 import { Core } from 'cytoscape';
-import { EdgeNotVisited, NodeData, NodeDataClass } from 'src/models/GraphTypes';
+import { EdgeNotVisited, NodeData, SdcData } from 'src/models/GraphTypes';
 import { LookupMetadata, SfRecord } from 'src/models/types';
 import ProcessStopper from './ProcessStopper';
 import { MAIN_LAYOUT } from './CytoscapeConf';
@@ -27,7 +27,7 @@ class GraphEmitter extends EventEmitter {
 const graphEmitter = new GraphEmitter();
 class GraphBuilder {
   public processStopper = new ProcessStopper();
-  async build(initRecords: SfRecord[], graph: Core<NodeData>) {
+  async build(initRecords: SfRecord[], graph: Core) {
     /**
      * @description actually it's edges to nodes that aren't visited
      */
@@ -81,7 +81,7 @@ class GraphBuilder {
         throw Error('Querry returned nothing.');
       }
 
-      const nextRecordNode = new NodeDataClass(nextRecordData);
+      const nextRecordNode = new SdcData(nextRecordData);
       if (lookupEdge.isInitialRecord) {
         // in this case it's not an edge but the queue if just filled to initiate the algorithm
         nextRecordNode.isInitialRecord = true;
@@ -90,7 +90,7 @@ class GraphBuilder {
         group: 'nodes',
         data: {
           id: nextRecordNode.sourceData.Id,
-          nodeData: nextRecordNode,
+          sdcData: nextRecordNode,
           label: nextRecordNode.label,
         },
       });
