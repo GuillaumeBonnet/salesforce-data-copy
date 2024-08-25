@@ -10,14 +10,14 @@ const warning = (message?: any, ...optionalParams: any[]) => {
 };
 
 const stepInGreen = (stepInGreen?: any, ...optionalParams: any[]) => {
+  console.log(chalk.green(`[${stepInGreen}]`));
   console.log(
-    chalk.green(`[${stepInGreen}]`),
     ...optionalParams?.map((param) => {
       if (param && typeof param == 'string') {
-        return chalk.grey(param);
+        return chalk.gray(param);
       }
       return param;
-    })
+    }),
   );
 };
 
