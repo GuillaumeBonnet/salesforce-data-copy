@@ -64,7 +64,7 @@ const persistentStore = new Store<PersistentStore>({
                 type: 'string',
               },
             },
-            required: ['id', 'sdcData', 'label'],
+            required: ['id', 'label'],
           },
           position: {
             type: 'object',
