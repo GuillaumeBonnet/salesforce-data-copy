@@ -58,9 +58,10 @@
       ref="inputWhere"
       outlined
       v-model="currentInitCond.queryBits.whereClause"
-      label="Type filter"
+      label="Query filter"
       :rules="[
-        (val) => !!val || 'Field is required',
+        (val) =>
+          !!val || 'Filter required, space character to querry the whole table',
         (val) =>
           (val && !val.toUpperCase().startsWith('WHERE')) ||
           `Don't add WHERE in the filter.`,
