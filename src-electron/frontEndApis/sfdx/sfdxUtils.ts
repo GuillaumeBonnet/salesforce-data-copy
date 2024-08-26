@@ -176,10 +176,13 @@ const findCreatableUniqueField = async (
   }
 };
 
+const getConnection = () => {};
+
 export {
   findAllCreatableFields,
   startOrgConnexion,
   queryWithAllCreatableFields,
   fieldsMetadataOfSobject,
   findCreatableUniqueField as findUniqueField,
+  getConnection,
 };

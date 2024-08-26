@@ -7,9 +7,8 @@ import {
 import { DTfieldName, PermissionSetHandler } from './PermissionSetHandler';
 import { SfRecord } from '../../../src/models/types';
 import { errorMsg, isSfRecord } from '../../utils';
+import { getOrgConnection, setOrgConnection } from './OrgConnector';
 
-let connectionFromOrg: Connection;
-let connectionToOrg: Connection;
 let permissionSetHandler: PermissionSetHandler;
 
 const sfdx = {
@@ -37,43 +36,48 @@ const sfdx = {
       },
     };
     try {
-      connectionFromOrg = await startOrgConnexion(userNames.fromUsername);
+      setOrgConnection(await startOrgConnexion(userNames.fromUsername), 'FROM');
       output.fromSandbox.successfulConnection = true;
     } catch (error) {
       output.fromSandbox.errorMsg = errorMsg(error);
     }
     try {
-      connectionToOrg = await startOrgConnexion(userNames.toUsername);
+      setOrgConnection(await startOrgConnexion(userNames.toUsername), 'TO');
       output.toSandbox.successfulConnection = true;
     } catch (error) {
       output.toSandbox.errorMsg = errorMsg(error);
     }
     return output;
   },
+  getSobjects: async function () {
+    const connection = getOrgConnection('FROM');
+    const objectList = (await connection.describeGlobal()).sobjects
+      .filter((obj) => obj.queryable)
+      .map((obj) => obj.name);
+    return objectList;
+  },
   queryWithAllCreatableFields: async function (
     sandbox: 'FROM' | 'TO',
     sObjectName: string,
     whereClause?: string,
   ) {
-    const connection: Connection =
-      sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
+    const connection = getOrgConnection(sandbox);
     return queryWithAllCreatableFields(connection, sObjectName, whereClause);
   },
   fieldsMetadataOfSobject: async function (
     sandbox: 'FROM' | 'TO',
     sObjectName: string,
   ) {
-    const connection: Connection =
-      sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
+    const connection = getOrgConnection(sandbox);
     return fieldsMetadataOfSobject(sObjectName, connection);
   },
   currentUserInfo: async function (sandbox: 'FROM' | 'TO') {
-    const connection: Connection =
-      sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
+    const connection = getOrgConnection(sandbox);
     const { user_id, username } = await connection.identity();
     return { username, userId: user_id };
   },
   loadPermissionSetAndAssignement: async function (currentUserIdTo: string) {
+    const connectionToOrg = getOrgConnection('TO');
     permissionSetHandler = new PermissionSetHandler(
       connectionToOrg,
       currentUserIdTo,
@@ -85,8 +89,7 @@ const sfdx = {
     userNameBits.pop();
     const userNameProd = userNameBits.join('.');
     const query = `SELECT Id, IsActive FROM User WHERE Username LIKE '${userNameProd}%'`;
-    const connection: Connection =
-      sandbox == 'FROM' ? connectionFromOrg : connectionToOrg;
+    const connection = getOrgConnection(sandbox);
     const queryResult_RecordAlreadyExists = await connection.query(query);
     if (
       queryResult_RecordAlreadyExists &&
@@ -104,6 +107,7 @@ const sfdx = {
     return ret;
   },
   upsertOrgTo: async function (record: SfRecord) {
+    const connectionToOrg = getOrgConnection('TO');
     return await connectionToOrg.upsert(
       record.attributes.type,
       record,
@@ -111,6 +115,7 @@ const sfdx = {
     );
   },
   updateOrgTo: async function (record: SfRecord) {
+    const connectionToOrg = getOrgConnection('TO');
     return await connectionToOrg.update(record.attributes.type, record);
   },
   createDTField_InOrgTo: async function (SObjectType: string) {

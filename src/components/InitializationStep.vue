@@ -32,14 +32,26 @@
   </div>
   <div class="flex justify-center items-center gap-2 wrap">
     <div class="underline w-full text-lg">Chose initial query:</div>
-    <q-input
+    <q-select
       class=""
       ref="inputSObject"
       outlined
+      use-input
+      fill-input
+      :options="optionsObjects"
+      @filter="filterFn"
+      input-debounce="0"
+      hide-selected
       v-model="currentInitCond.queryBits.sObjectName"
       label="SObject Name"
       :rules="[(val) => !!val || 'Field is required']"
-    />
+    >
+      <template v-slot:no-option>
+        <q-item>
+          <q-item-section class="text-grey"> No results </q-item-section>
+        </q-item>
+      </template>
+    </q-select>
     <span class="">WHERE</span>
     <q-input
       class=""
@@ -82,6 +94,7 @@ let currentInitCond: typeof previousInitCond = reactive({
     whereClause: '',
   },
 });
+let objectList: string[] = [];
 onMounted(async function () {
   fromSandbox.options = await (
     await window.electronApi.sfdx.getAliases()
@@ -92,7 +105,7 @@ onMounted(async function () {
   }));
   Object.assign(
     currentInitCond,
-    await window.electronApi.persistentStore.getInitialConditions()
+    await window.electronApi.persistentStore.getInitialConditions(),
   ); // reactive obj have to stay the same ref (use const)
   Object.assign(previousInitCond, JSON.parse(JSON.stringify(currentInitCond)));
   if (
@@ -133,7 +146,21 @@ const toSandbox = reactive({
     return !currentInitCond.fromUsername;
   }),
 });
-
+const optionsObjects = ref(objectList);
+const filterFn = (val: string, update: Function) => {
+  if (val === '') {
+    update(() => {
+      optionsObjects.value = objectList;
+    });
+    return;
+  }
+  update(() => {
+    const needle = val.toLowerCase();
+    optionsObjects.value = objectList.filter(
+      (v) => v.toLowerCase().indexOf(needle) > -1,
+    );
+  });
+};
 watch(
   () => currentInitCond.fromUsername,
 
@@ -141,11 +168,11 @@ watch(
   (value, oldValue) => {
     currentInitCond.toUsername = '';
     toSandbox.options = fromSandbox.options.filter(
-      (option) => option.value != value
+      (option) => option.value != value,
     );
     fromSandbox.errorMsg = '';
     fromSandbox.successfulConnection = false;
-  }
+  },
 );
 
 watch(
@@ -154,7 +181,7 @@ watch(
   (value, oldValue) => {
     toSandbox.errorMsg = '';
     toSandbox.successfulConnection = false;
-  }
+  },
 );
 
 const bothSandboxPicked = computed(() => {
@@ -174,6 +201,14 @@ const testConnections = async () => {
 
   toSandbox.errorMsg = result.toSandbox.errorMsg;
   toSandbox.successfulConnection = result.toSandbox.successfulConnection;
+  if (fromSandbox.successfulConnection && toSandbox.successfulConnection) {
+    objectList = await window.electronApi.sfdx.getSobjects();
+    objectList = [
+      ...objectList.filter((obj) => obj.includes('__c')),
+      ...objectList.filter((obj) => !obj.includes('__c')),
+    ];
+    optionsObjects.value = objectList;
+  }
 };
 
 const inputSObject = ref<QInput>(); // to read the .hasError
@@ -194,7 +229,7 @@ watch(
   },
   (val) => {
     emit('isNextStepDisabled', val);
-  }
+  },
 );
 
 const isInitCondSameAsPrevious = computed(() => {
@@ -213,7 +248,7 @@ watch(isInitCondSameAsPrevious, (val) => {
 
 const getInitCond = async () => {
   const initCond: typeof currentInitCond & { hasChanged: boolean } = JSON.parse(
-    JSON.stringify(currentInitCond)
+    JSON.stringify(currentInitCond),
   );
   if (
     currentInitCond.fromUsername != previousInitCond.fromUsername ||
@@ -224,7 +259,7 @@ const getInitCond = async () => {
       previousInitCond.queryBits.whereClause
   ) {
     await window.electronApi.persistentStore.setInitialConditions(
-      initCond // extract from proxy
+      initCond, // extract from proxy
     );
     initCond.hasChanged = true;
   }

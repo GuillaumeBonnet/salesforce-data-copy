@@ -27,6 +27,7 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
   sfdx: {
     getAliases: '',
     testConnections: '',
+    getSobjects: '',
     queryWithAllCreatableFields: '',
     fieldsMetadataOfSobject: '',
     currentUserInfo: '',
