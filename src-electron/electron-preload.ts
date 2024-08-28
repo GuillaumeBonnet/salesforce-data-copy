@@ -45,6 +45,10 @@ const electronApiKeys: ElectronApi_PreloadKeyChecker = {
     getGraphUiSettings: '',
     setGraphUiSettings: '',
   },
+  other: {
+    getLicenceContent: '',
+    openLink: '',
+  },
 };
 
 const electronApiExposed = JSON.parse(JSON.stringify(electronApiKeys));

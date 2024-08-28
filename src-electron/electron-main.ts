@@ -9,7 +9,7 @@ const platform = process.platform || os.platform();
 try {
   if (platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
     require('fs').unlinkSync(
-      path.join(app.getPath('userData'), 'DevTools Extensions')
+      path.join(app.getPath('userData'), 'DevTools Extensions'),
     );
   }
 } catch (_) {}
@@ -30,7 +30,7 @@ function createWindow() {
       // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
       preload: path.resolve(
         __dirname,
-        process.env.QUASAR_ELECTRON_PRELOAD || ''
+        process.env.QUASAR_ELECTRON_PRELOAD || '',
       ),
     },
   });
@@ -53,12 +53,14 @@ function createWindow() {
 }
 
 // import { ipcApi } from './channels';
-import { sfdx } from './frontEndApis/sfdx/sfdxApi';
-import { persistentStoreApi } from './frontEndApis/store/persistentStoreApi';
+import { sfdx } from './frontEndApis/sfdx';
+import { persistentStoreApi } from './frontEndApis/store';
+import other from './frontEndApis/other';
 
 const electronApi = {
-  sfdx: sfdx,
+  sfdx,
   persistentStore: persistentStoreApi,
+  other,
 };
 
 type ElectronApi = typeof electronApi;

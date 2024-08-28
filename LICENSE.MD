@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2022, GuillaumeBonnet
+Copyright (c) 2022, Guillaume Bonnet
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
