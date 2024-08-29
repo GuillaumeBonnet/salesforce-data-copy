@@ -1,8 +1,10 @@
 import { ElementDefinition } from 'cytoscape';
 import Store from 'electron-store';
 import { NodeData } from 'src/models/GraphTypes';
+import packageInfo from '../../../package-lock.json';
 
 interface PersistentStore {
+  version: string;
   initialConditions: {
     queryBits: {
       sObjectName: string;
@@ -19,6 +21,9 @@ interface PersistentStore {
 }
 const persistentStore = new Store<PersistentStore>({
   schema: {
+    version: {
+      type: 'string',
+    },
     initialConditions: {
       type: 'object',
       required: ['queryBits', 'fromUsername', 'toUsername'],
@@ -120,8 +125,19 @@ const persistentStore = new Store<PersistentStore>({
     },
   },
   clearInvalidConfig: true,
-  //TODO do shallow encrypt
 });
+console.log(
+  "gboDebug:[persistentStore.get('version')]",
+  persistentStore.get('version'),
+);
+if (
+  !persistentStore.get('version') ||
+  persistentStore.get('version') !== packageInfo.version
+) {
+  // here update format of the data in store from on version to another if needed
+  persistentStore.clear();
+  persistentStore.set('version', packageInfo.version);
+}
 
 export { persistentStore };
 export type { PersistentStore };
