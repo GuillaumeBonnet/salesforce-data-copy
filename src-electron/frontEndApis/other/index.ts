@@ -9,6 +9,8 @@ const allowedLinks = [
   'https://www.npmjs.com/package/cytoscape',
   'https://quasar.dev/',
   'https://vuejs.org/',
+  'https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode',
+  'https://developer.salesforce.com/tools/salesforcecli',
 ] as const;
 export default {
   openLink: (url: (typeof allowedLinks)[number]) => {

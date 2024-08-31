@@ -43,8 +43,8 @@
 <script setup lang="ts">
 import packageInfo from '@root/package.json';
 import { useQuasar } from 'quasar';
-import LicensingInformation from '../pages/LicensingInformation.vue';
-import PrivacyPolicy from '../pages/PrivacyPolicy.vue';
+import LicensingInformation from '../components/LicensingInformation.vue';
+import PrivacyPolicy from '../components/PrivacyPolicy.vue';
 const $q = useQuasar();
 const licensingDialog = () => {
   $q.dialog({

@@ -18,6 +18,15 @@
       v-bind="toSandbox"
       v-model="currentInitCond.toUsername"
     ></select-organization>
+    <q-btn
+      push
+      color="grey-7"
+      text-color="white"
+      round
+      icon="add"
+      title="My sandbox is not in the list ?"
+      @click="popupAddSandbox()"
+    />
   </div>
   <div class="">
     <q-btn
@@ -71,11 +80,12 @@
 </template>
 
 <script setup lang="ts">
-import { QInput } from 'quasar';
+import { QInput, useQuasar } from 'quasar';
 import { computed, nextTick, onMounted, reactive, watch } from 'vue';
 import { ref } from 'vue';
 import SelectOrganization from './SelectOrganization.vue';
 import { OptionSandbox } from 'src/models/types';
+import NewConnectionSandbox from './NewConnectionSandbox.vue';
 
 let previousInitCond: Awaited<
   ReturnType<typeof window.electronApi.persistentStore.getInitialConditions>
@@ -265,6 +275,12 @@ const getInitCond = async () => {
     initCond.hasChanged = true;
   }
   return initCond;
+};
+const $q = useQuasar();
+const popupAddSandbox = () => {
+  $q.dialog({
+    component: NewConnectionSandbox,
+  });
 };
 defineExpose({
   getInitCond,
