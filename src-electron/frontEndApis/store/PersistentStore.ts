@@ -126,10 +126,6 @@ const persistentStore = new Store<PersistentStore>({
   },
   clearInvalidConfig: true,
 });
-console.log(
-  "gboDebug:[persistentStore.get('version')]",
-  persistentStore.get('version'),
-);
 if (
   !persistentStore.get('version') ||
   persistentStore.get('version') !== packageInfo.version
