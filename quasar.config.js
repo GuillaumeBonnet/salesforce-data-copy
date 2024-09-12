@@ -232,6 +232,10 @@ module.exports = configure(function (ctx) {
         // OS X / Mac App Store
         // appBundleId: '',
         // appCategoryType: '',
+        appId: 'gbo.salesforce-data-copy',
+        win: {
+          target: 'nsis',
+        },
         // osxSign: '',
         // protocol: 'myapp://path',
         // Windows only

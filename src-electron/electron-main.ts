@@ -56,7 +56,11 @@ function createWindow() {
 import { sfdx } from './frontEndApis/sfdx';
 import { persistentStoreApi } from './frontEndApis/store';
 import other from './frontEndApis/other';
+import squirrelStartup from 'electron-squirrel-startup';
 
+if (squirrelStartup) {
+  app.quit();
+}
 const electronApi = {
   sfdx,
   persistentStore: persistentStoreApi,
@@ -70,6 +74,7 @@ type ElectronApi_PreloadKeyChecker = {
     [key2 in keyof ElectronApi[key]]: '';
   };
 };
+
 app.on('web-contents-created', (event, contents) => {
   contents.on('will-navigate', (event, navigationUrl) => {
     event.preventDefault();

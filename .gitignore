@@ -6,6 +6,9 @@ node_modules
 .quasar
 /dist
 
+# electron-forge build files
+/out
+
 # Cordova related directories and files
 /src-cordova/node_modules
 /src-cordova/platforms
