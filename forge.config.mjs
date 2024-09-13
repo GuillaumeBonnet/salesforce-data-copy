@@ -1,4 +1,3 @@
-console.log('gboDebug: in forge config A');
 const config = {
   packagerConfig: {
     asar: true,
@@ -23,6 +22,18 @@ const config = {
       name: '@electron-forge/maker-deb',
       platforms: ['linux'],
       config: {},
+    },
+  ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'GuillaumeBonnet',
+          name: 'salesforce-data-copy',
+        },
+        prerelease: true,
+      },
     },
   ],
 };
