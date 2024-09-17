@@ -11,7 +11,9 @@ jobs:
           node-version: 20
       - name: install dependencies
         run: npm ci
-      - name: build
+      - name: quasar build
+        run: npm run build
+      - name: electron forge build
         run: npm run make
 
   build_on_mac:
@@ -23,7 +25,9 @@ jobs:
           node-version: 20
       - name: install dependencies
         run: npm ci
-      - name: build
+      - name: quasar build
+        run: npm run build
+      - name: electron forge build
         run: npm run make
 
   build_on_win:
@@ -35,5 +39,7 @@ jobs:
           node-version: 20
       - name: install dependencies
         run: npm ci
-      - name: build
+      - name: quasar build
+        run: npm run build
+      - name: electron forge build
         run: npm run make
