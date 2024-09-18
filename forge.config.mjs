@@ -32,6 +32,7 @@ const config = {
           owner: 'GuillaumeBonnet',
           name: 'salesforce-data-copy',
         },
+        draft: true,
         prerelease: true,
       },
     },
