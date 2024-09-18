@@ -13,6 +13,8 @@ jobs:
           node-version: 20
       - name: install dependencies
         run: npm ci
+      - name: quasar build
+        run: npm run build
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -27,6 +29,8 @@ jobs:
           node-version: 20
       - name: install dependencies
         run: npm ci
+      - name: quasar build
+        run: npm run build
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,7 +44,9 @@ jobs:
         with:
           node-version: 20
       - name: install dependencies
-        run: npm install
+        run: npm ci
+      - name: quasar build
+        run: npm run build
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
