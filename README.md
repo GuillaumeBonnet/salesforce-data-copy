@@ -1,4 +1,18 @@
-# salesforce data copy (salesforce-data-copy)
+![example screenshot of the program](documentation/programScreenshot.png)
+
+# Installers
+
+Installer files are available under the latest release -> Assets:
+
+- Windows
+  - _salesforce-data-copy-{versionNumber}.Setup.exe_ main installer
+  - _salesforce-data-copy-win32-x64-{versionNumber}.zip_ zip alternative
+  - _salesforce_data_copy-{versionNumber}-full.nupkg_ Nuget package alternative for windows users
+- Mac
+  - _salesforce-data-copy-darwin-arm64-{versionNumber}.zip_
+- Linux
+  - _salesforce-data-copy_{versionNumber}_amd64.deb_ for linux users
+  - _salesforce-data-copy-linux-x64-{versionNumber}.zip_ zip alternative for linux users
 
 # Install the dependencies
 
@@ -19,10 +33,6 @@ quasar dev
 ```bash
 quasar build
 ```
-
-# build-working branch
-
-When a commit on the **main** branch has been tested for having a working build update branch **build-working** to that commit
 
 # Information for updating dependencies:
 
