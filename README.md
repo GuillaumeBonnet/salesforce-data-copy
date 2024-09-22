@@ -34,6 +34,12 @@ quasar dev
 quasar build
 ```
 
+# Test during developpment
+
+If you don't have your own orgs with data ready you can create scratch orgs from a Developer Org following the instructions in the [lwc-recipes repository](https://github.com/trailheadapps/lwc-recipes?tab=readme-ov-file#installing-the-app-using-a-scratch-org) to make a source org and target org.
+
+Don't import the sample data on the target org if you want o test the data transfer with this app.
+
 # Information for updating dependencies:
 
 - chalk can't be in version 5 with typescript or a build tool
